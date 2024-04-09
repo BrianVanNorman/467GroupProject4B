@@ -1,0 +1,13 @@
+.convert-quote {
+    margin: 20px;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f5f5f5;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .convert-quote h2 {
+    color: #333;
+    margin-bottom: 20px;
+  }
