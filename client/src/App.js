@@ -15,19 +15,19 @@ function App() {
           <nav>
             <ul>
               <li>
-                <Link to="/">Home</Link>
+                <Link className="button-link" to="/">Home</Link>
               </li>
               <li>
-                <Link to="/enter-quote">Enter Sales Quote</Link>
+                <Link className="button-link" to="/enter-quote">Enter Sales Quote</Link>
               </li>
               <li>
-                <Link to="/sanction-quote">Sanction Quote</Link>
+                <Link className="button-link" to="/sanction-quote">Sanction Quote</Link>
               </li>
               <li>
-                <Link to="/convert-quote">Convert Quote to Purchase Order</Link>
+                <Link className="button-link" to="/convert-quote">Convert Quote to Purchase Order</Link>
               </li>
               <li>
-                <Link to="/maintain-records">Maintain Records</Link>
+                <Link className="button-link" to="/maintain-records">Maintain Records</Link>
               </li>
             </ul>
           </nav>

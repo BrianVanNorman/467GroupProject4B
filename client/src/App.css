@@ -40,3 +40,34 @@ main {
     transform: rotate(360deg);
   }
 }
+
+ul {
+  list-style-type: none;
+}
+
+a:visited {
+  color: inherit;
+}
+
+.button-link {
+  display: inline-block;
+  padding: 10px 20px;
+  margin: 5px;
+  background-color: #282c34; /* green */
+  color: white;
+  text-decoration: none;
+  text-align: center;
+  transition: background-color 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.button-link:hover {
+  background-color: #282c33; /* dark green */
+}
+
+.button-link:active {
+  background-color: #282c32; /* darker green */
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
