@@ -1,6 +1,5 @@
 # Dependency directories
 node_modules/
-/client/node_modules/
 
 # Optional: macOS system files
 .DS_Store
