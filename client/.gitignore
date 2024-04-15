@@ -1,5 +1,6 @@
 # Dependency directories
 node_modules/
+/client/node_modules/
 
 # Optional: macOS system files
 .DS_Store
@@ -37,6 +38,3 @@ yarn-error.log
 *.sublime-workspace
 *.sublime-project
 
-
-/node_modules
-/client/node_modules/
