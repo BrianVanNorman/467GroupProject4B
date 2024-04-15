@@ -36,3 +36,7 @@ yarn-error.log
 .vscode
 *.sublime-workspace
 *.sublime-project
+
+
+/node_modules
+/client/node_modules/
