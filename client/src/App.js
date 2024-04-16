@@ -13,7 +13,7 @@ function App() {
         <header className="App-header">
           <h1>Sales Quote Management System</h1>
           <nav>
-            <ul>
+            <ul className="button-list">
               <li>
                 <Link className="button-link" to="/">Home</Link>
               </li>
