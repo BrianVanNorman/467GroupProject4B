@@ -8,6 +8,29 @@ const customerController = require('./customerController');
 
 
 // Define routes here
+
+// Route for fetching customer data from the legacy database and creating a new Quote
+router.post('/legacy-customers/:id/create-quote', async (req, res) => {
+  try {
+    const customerId = req.params.id; // Get the customer ID from the URL parameter
+    const customerData = await customerController.fetchCustomerData(customerId);
+
+    // Create a new Quote instance with the fetched customer data
+    const newQuote = new Quote({
+      customer_name: customerData[0].customer_name,
+      customer_email: customerData[0].customer_email,
+      // You may need to set other fields here depending on your requirements
+    });
+
+    // Save the new Quote instance to the MongoDB database
+    const savedQuote = await newQuote.save();
+
+    res.json(savedQuote); // Send the saved Quote as a response
+  } catch (error) {
+    res.status(500).send('Failed to create quote: ' + error.message);
+  }
+});
+
 router.post('/sales-associates', async (req, res) => {
     try {
         const { id, name, email } = req.body;
@@ -66,17 +89,6 @@ router.post('/quotes', async (req, res) => {
       res.status(500).json({ message: 'Failed to retrieve quotes' });
     }
   });
-
-// Route for fetching customer data from the legacy database
-router.get('/legacy-customers/:id', async (req, res) => {
-  try {
-    const customerId = req.params.id; // Get the customer ID from the URL parameter
-    const customerData = await customerController.fetchCustomerData(customerId);
-    res.json(customerData);
-  } catch (error) {
-    res.status(500).send('Failed to fetch customer data: ' + error.message);
-  }
-});
 
 module.exports = router;
 
