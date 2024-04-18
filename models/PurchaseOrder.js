@@ -13,7 +13,7 @@ const PurchaseOrderSchema = new Schema({
         required: true,
     },
     amount: {
-        type: Double,
+        type: Number,
         required: true,
     },
 });

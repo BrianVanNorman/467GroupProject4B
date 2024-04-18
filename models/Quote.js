@@ -26,7 +26,7 @@ const QuoteSchema = new Schema({
     default: 'draft',
   },
   discount: {
-    type: Double,
+    type: Number,
     required: false,
   },
   secret_note: {

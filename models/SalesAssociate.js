@@ -11,7 +11,7 @@ const SalesAssociateSchema = new Schema({
         required: true,
     },
     commission: {
-        type: Double,
+        type: Number,
         default: 0,
     },
     address: {

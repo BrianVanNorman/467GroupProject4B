@@ -4,7 +4,7 @@ const router = express.Router();
 const SalesAssociate = require('../models/SalesAssociate'); 
 const Quote = require('../models/Quote');
 
-const customerController = require('./controllers/customerController');
+const customerController = require('./customerController');
 
 
 // Define routes here

@@ -11,7 +11,7 @@ const ItemSchema = new Schema({
         required: false,
     },
     amount: {
-        type: Double,
+        type: Number,
         required: true,
     },
 });
