@@ -1,22 +1,25 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const SalesAssociateSchema = new mongoose.Schema({
-    id: {
-        type: Number,
-        required: true,
-        unique: true // Ensures that no two documents can have the same id
-    },
+const SalesAssociateSchema = new Schema({
     name: {
         type: String,
         required: true
     },
-    email: {
+    password: {
         type: String,
         required: true,
-        unique: true
-    }
+    },
+    commission: {
+        type: Double,
+        default: 0,
+    },
+    address: {
+        type: String,
+        required: true,
+    },
 });
 
-const SalesAssociate = mongoose.model('SalesAssociate', SalesAssociateSchema, 'SalesAssociateManagement');
+const SalesAssociateModel = mongoose.model('SalesAssociate', SalesAssociateSchema);
 
-module.exports = SalesAssociate;
+module.exports = SalesAssociateModel;
