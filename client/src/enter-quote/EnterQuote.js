@@ -3,112 +3,66 @@ import axios from 'axios';
 import './EnterQuote.css';
 
 function EnterQuote() {
-  // State variables for form data
-  const [customer, setCustomer] = useState('');
-  const [lineItems, setLineItems] = useState([{ description: '', price: 0 }]);
-  const [secretNotes, setSecretNotes] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [results, setResults] = useState(null); // Initialize to null for better type checking
 
-  // Function to add a new line item
-  const addLineItem = () => {
-    setLineItems([...lineItems, { description: '', price: 0 }]);
-  };
-
-  // Function to handle changes in line item inputs
-  const handleLineItemChange = (index, field, value) => {
-    const updatedLineItems = [...lineItems];
-    updatedLineItems[index][field] = value;
-    setLineItems(updatedLineItems);
-  };
-
-  // Function to handle form submission
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
+  const handleSearch = async () => {
     try {
-      const response = await axios.post('/api/quotes', {
-        customer,
-        lineItems,
-        secretNotes
-      });
-
-      if (response.status === 201) {
-        // Clear form or display success message
-        setCustomer('');
-        setLineItems([{ description: '', price: 0 }]);
-        setSecretNotes('');
-        alert('Quote created successfully!');
-      } else {
-        // Handle unexpected response
-        alert('An error occurred while creating the quote.');
-      }
+      const response = await axios.get(`/api/customers/search?name=${searchTerm}`);
+      console.log("API Response:", response.data); // Log to inspect the structure
+      setResults(response.data);
     } catch (error) {
-      // Handle errors during API call
-      alert('An error occurred while creating the quote.');
+      console.error('Error fetching customer data:', error);
+      alert('An error occurred while searching for customers.');
+      setResults([]); // Ensure results is set to an empty array on error
     }
+  };
+
+  const renderResults = () => {
+    if (Array.isArray(results)) {
+      return (
+        <table className="customer-search-results">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>City</th>
+              <th>Street</th>
+              <th>Contact</th>
+            </tr>
+          </thead>
+          <tbody>
+            {results.map((customer, index) => (
+              <tr key={index}>
+                <td>{customer.name}</td>
+                <td>{customer.city}</td>
+                <td>{customer.street}</td>
+                <td>{customer.contact}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+    } else if (results) {
+      return <p>Received data is not in the expected format.</p>;
+    }
+    return <p>No results found.</p>;
   };
 
   return (
     <div className="enter-quote">
       <h2>Enter Sales Quote</h2>
-
-      <form className="quote-form" onSubmit={handleSubmit}>
-        {/* Customer Input */}
-        <div className="form-group">
-          <label htmlFor="customer">Customer ID:</label>
-          <input 
-            type="text" 
-            id="customer" 
-            value={customer} 
-            onChange={(e) => setCustomer(e.target.value)} 
-          />
-        </div>
-
-        {/* Line Items Table */}
-        <table className="line-items-table">
-          <thead>
-            <tr>
-              <th>Description</th>
-              <th>Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            {lineItems.map((item, index) => (
-              <tr key={index}>
-                <td>
-                  <input 
-                    type="text"
-                    value={item.description}
-                    onChange={(e) => handleLineItemChange(index, 'description', e.target.value)}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    value={item.price}
-                    onChange={(e) => handleLineItemChange(index, 'price', e.target.value)}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <button type="button" className="button" onClick={addLineItem}>
-          Add Line Item
-        </button>
-
-        {/* Secret Notes */}
-        <div className="form-group">
-          <label htmlFor="secretNotes">Secret Notes:</label>
-          <textarea 
-            id="secretNotes" 
-            value={secretNotes} 
-            onChange={(e) => setSecretNotes(e.target.value)} 
-          />
-        </div>
-
-        {/* Submit Button */}
-        <button type="submit" className="button">Create Quote</button>
-      </form>
+      <div className="form-group">
+        <label htmlFor="customer-search">Customer Name:</label>
+        <input 
+          type="text" 
+          id="customer-search" 
+          placeholder="Search Customers..."
+          value={searchTerm} 
+          onChange={(e) => setSearchTerm(e.target.value)} 
+          onKeyUp={(e) => e.key === 'Enter' && handleSearch()}
+        />
+      </div>
+      {renderResults()}
     </div>
   );
 }

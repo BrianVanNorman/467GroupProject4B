@@ -1,13 +1,17 @@
 const connectLegacyDB = require('../legacyDB');
 
-exports.fetchCustomerData = async (customerId) => {
-  const connection = await connectLegacyDB();
+const searchCustomersByName = async (req, res) => {
+  const searchTerm = req.query.name;
   try {
-    const [customers] = await connection.query('SELECT id, Name AS customer_name, Contact AS customer_email FROM customers WHERE id = ?', [customerId]);
-    return customers;
+    const conn = await connectLegacyDB();
+    const [rows] = await conn.execute(
+      'SELECT name, city, street, contact FROM customers WHERE name LIKE ?',
+      [`%${searchTerm}%`]
+    );
+    res.json(rows);
   } catch (error) {
-    console.error('Error fetching customer data:', error.message);
-  } finally {
-    await connection.end();
+    console.error('Error searching customers:', error);
+    res.status(500).send('Error searching for customers');
   }
 };
+module.exports = { searchCustomersByName };
