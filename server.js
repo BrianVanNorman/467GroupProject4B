@@ -11,7 +11,8 @@ const port = process.env.PORT || 3001; // Use environment variable for port if s
 // Connect to MongoDB
 connectDB();
 
-connectLegacyDB();
+// Connect to the legacy MySQL database
+//connectLegacyDB();
 
 // Middleware to parse JSON bodies
 app.use(express.json());
