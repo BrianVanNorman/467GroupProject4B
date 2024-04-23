@@ -1,4 +1,6 @@
 const connectLegacyDB = require('../legacyDB');
+const QuoteModel = require('../models/Quote');
+
 
 const searchCustomersByName = async (req, res) => {
   const searchTerm = req.query.name;
@@ -14,4 +16,23 @@ const searchCustomersByName = async (req, res) => {
     res.status(500).send('Error searching for customers');
   }
 };
-module.exports = { searchCustomersByName };
+
+// quoteController.js
+
+// Function to create a new quote document
+const createNewQuote = async (quoteData) => {
+  // Create a new Quote model instance with the provided data
+  const quote = new QuoteModel({
+    customer_email: quoteData.customer_email,
+    associate_id: quoteData.associate_id,
+    items: quoteData.items, // This assumes that items is an array of item IDs
+    status: 'finalized',
+    secret_note: quoteData.secret_note,
+  });
+
+  // Save the new quote to the database
+  const savedQuote = await quote.save();
+  return savedQuote;
+};
+
+module.exports = { searchCustomersByName, createNewQuote };

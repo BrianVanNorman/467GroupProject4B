@@ -6,6 +6,37 @@ function EnterQuote() {
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState(null); // Initialize to null for better type checking
 
+  // Add new state variables for form fields
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [associateId, setAssociateId] = useState('');
+  const [lineItems, setLineItems] = useState([{ name: '', description: '', amount: '' },]);
+  const [secretNote, setSecretNote] = useState('');
+
+  // Function to handle form submission
+  const finalizeQuote = async () => {
+    try {
+      const quoteData = {
+        customer_email: customerEmail,
+        associate_id: associateId, // Make sure this is set to a valid ObjectId
+        items, // Assuming items is an array of item details
+        secret_note: secretNote,
+      };
+
+      // Send a POST request to the backend to create a new quote
+      const response = await axios.post('/api/quotes', quoteData);
+      if (response.status === 201) {
+        alert('Quote finalized successfully!');
+        // Clear the form or redirect as needed
+      } else {
+        alert('Failed to finalize quote.');
+      }
+    } catch (error) {
+      console.error('Error finalizing quote:', error);
+      alert('An error occurred while finalizing the quote.');
+    }
+  };
+
+
   const handleSearch = async () => {
     try {
       const response = await axios.get(`/api/customers/search?name=${searchTerm}`);
@@ -63,6 +94,32 @@ function EnterQuote() {
         />
       </div>
       {renderResults()}
+
+      {/* Add a new form for quote details */}
+      <form onSubmit={(e) => e.preventDefault()}>
+        <input
+          type="email"
+          value={customerEmail}
+          onChange={(e) => setCustomerEmail(e.target.value)}
+          placeholder="Customer Contact"
+          required
+        />
+        <input
+          type="text"
+          value={associateId}
+          onChange={(e) => setAssociateId(e.target.value)}
+          placeholder="Associate ID"
+          required
+        />
+        {/* Add fields for items - you'll need to manage state for dynamic item inputs */}
+        {/* ... */}
+        <textarea
+          value={secretNote}
+          onChange={(e) => setSecretNote(e.target.value)}
+          placeholder="Secret Note"
+        />
+        <button type="button" onClick={finalizeQuote}>Finalize Quote</button>
+      </form>
     </div>
   );
 }
