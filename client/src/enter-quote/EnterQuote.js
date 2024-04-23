@@ -3,14 +3,35 @@ import axios from 'axios';
 import './EnterQuote.css';
 
 function EnterQuote() {
+
+  // State variables for search field
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState(null); // Initialize to null for better type checking
 
-  // Add new state variables for form fields
+  // State variables for form fields when entering a quote
   const [customerEmail, setCustomerEmail] = useState('');
   const [associateId, setAssociateId] = useState('');
   const [lineItems, setLineItems] = useState([{ name: '', description: '', amount: '' },]);
   const [secretNote, setSecretNote] = useState('');
+
+  // Function to add a new line item
+  const addLineItem = () => {
+    setLineItems([...lineItems, { name: '', description: '', amount: '' }]);
+  };
+
+  // Function to handle line item changes
+  const handleLineItemChange = (index, field, value) => {
+    const newLineItems = lineItems.map((item, i) =>
+      i === index ? { ...item, [field]: value } : item
+    );
+    setLineItems(newLineItems);
+  };
+
+  // Function to remove a line item
+  const removeLineItem = (index) => {
+    const newLineItems = lineItems.filter((_, i) => i !== index);
+    setLineItems(newLineItems);
+  };
 
   // Function to handle form submission
   const finalizeQuote = async () => {
@@ -18,7 +39,7 @@ function EnterQuote() {
       const quoteData = {
         customer_email: customerEmail,
         associate_id: associateId, // Make sure this is set to a valid ObjectId
-        items, // Assuming items is an array of item details
+        line_items: lineItems, // Assuming items is an array of item details
         secret_note: secretNote,
       };
 
@@ -95,7 +116,7 @@ function EnterQuote() {
       </div>
       {renderResults()}
 
-      {/* Add a new form for quote details */}
+      {/* Form for adding quote details */}
       <form onSubmit={(e) => e.preventDefault()}>
         <input
           type="email"
@@ -111,8 +132,34 @@ function EnterQuote() {
           placeholder="Associate ID"
           required
         />
-        {/* Add fields for items - you'll need to manage state for dynamic item inputs */}
-        {/* ... */}
+        {/* Line Items Section */}
+          {lineItems.map((item, index) => (
+            <div key={index} className="line-item-form">
+              <input
+                type="text"
+                placeholder="Item Name"
+                value={item.name}
+                onChange={(e) => handleLineItemChange(index, 'name', e.target.value)}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Item Description"
+                value={item.description}
+                onChange={(e) => handleLineItemChange(index, 'description', e.target.value)}
+              />
+              <input
+                type="number"
+                placeholder="Item Amount"
+                value={item.amount}
+                onChange={(e) => handleLineItemChange(index, 'amount', e.target.value)}
+                required
+              />
+              <button type="button" onClick={() => removeLineItem(index)}>Remove</button>
+            </div>
+          ))}
+        <button type="button" onClick={addLineItem}>Add Line Item</button>
+
         <textarea
           value={secretNote}
           onChange={(e) => setSecretNote(e.target.value)}

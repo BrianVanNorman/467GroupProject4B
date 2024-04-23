@@ -2,6 +2,7 @@ const connectLegacyDB = require('../legacyDB');
 const QuoteModel = require('../models/Quote');
 
 
+//Search function for searching through Legacy DB
 const searchCustomersByName = async (req, res) => {
   const searchTerm = req.query.name;
   try {
@@ -17,15 +18,13 @@ const searchCustomersByName = async (req, res) => {
   }
 };
 
-// quoteController.js
-
 // Function to create a new quote document
 const createNewQuote = async (quoteData) => {
   // Create a new Quote model instance with the provided data
   const quote = new QuoteModel({
     customer_email: quoteData.customer_email,
     associate_id: quoteData.associate_id,
-    items: quoteData.items, // This assumes that items is an array of item IDs
+    line_items: quoteData.line_items, // This assumes that items is an array of item IDs
     status: 'finalized',
     secret_note: quoteData.secret_note,
   });

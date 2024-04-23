@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors'); // You need to install cors with npm install cors
 const connectDB = require('./db');
-const connectLegacyDB = require('./legacyDB');
+//const connectLegacyDB = require('./legacyDB');
 const routes = require('./controllers/routes');
 
 const app = express();
