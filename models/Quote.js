@@ -1,19 +1,14 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const autoIncrement = require('mongoose-auto-increment');
 
 const QuoteSchema = new Schema({
-  quote_id: {
-    type: Number,
-    required: true,
-    unique: true
-  },
   date: {
-    type: date,
+    type: Date,
     required: true
   },
   associate_id: {
-    type: Number,
+    type: Schema.Types.ObjectID,
+    ref: 'SalesAssociate',
     required: true
   },
   customer_id: {
@@ -37,14 +32,6 @@ const QuoteSchema = new Schema({
     enum: ['draft', 'finalized', 'sanctioned', 'ordered'], 
     default: 'draft'
   }
-});
-
-// Sets up auto-increment for quote_id
-QuoteSchema.plugin(autoIncrement.plugin, {
-  model: 'Quote',
-  field: 'quote_id',
-  startAt: 1,
-  incrementBy: 1
 });
 
 const QuoteModel = mongoose.model('Quote', QuoteSchema);
