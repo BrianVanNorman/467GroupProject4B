@@ -8,6 +8,8 @@ function EnterQuote() {
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState(null); // Initialize to null for better type checking
 
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [showQuoteForm, setShowQuoteForm] = useState(false);
   // State variables for form fields when entering a quote
   const [customerEmail, setCustomerEmail] = useState('');
   const [associateId, setAssociateId] = useState('');
@@ -33,20 +35,31 @@ function EnterQuote() {
     setLineItems(newLineItems);
   };
 
+  const handleCreateQuote = (customer) => {
+    setSelectedCustomer(customer);
+    setShowQuoteForm(true);
+  };
+
+  const handleCloseQuoteForm = () => {
+    setSelectedCustomer(null);
+    setShowQuoteForm(false);
+  };
   // Function to handle form submission
   const finalizeQuote = async () => {
     try {
       const quoteData = {
         customer_email: customerEmail,
-        associate_id: associateId, // Make sure this is set to a valid ObjectId
-        line_items: lineItems, // Assuming items is an array of item details
+        associate_id: associateId,
+        line_items: lineItems,
         secret_note: secretNote,
+        customer_id: selectedCustomer.id, // Include the selected customer's ID
+        customer_address: selectedCustomer.street, // Include the selected customer's address
       };
 
-      // Send a POST request to the backend to create a new quote
       const response = await axios.post('/api/quotes', quoteData);
       if (response.status === 201) {
         alert('Quote finalized successfully!');
+        handleCloseQuoteForm();
         // Clear the form or redirect as needed
       } else {
         alert('Failed to finalize quote.');
@@ -105,68 +118,107 @@ function EnterQuote() {
       <h2>Enter Sales Quote</h2>
       <div className="form-group">
         <label htmlFor="customer-search">Customer Name:</label>
-        <input 
-          type="text" 
-          id="customer-search" 
+        <input
+          type="text"
+          id="customer-search"
           placeholder="Search Customers..."
-          value={searchTerm} 
-          onChange={(e) => setSearchTerm(e.target.value)} 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
           onKeyUp={(e) => e.key === 'Enter' && handleSearch()}
         />
       </div>
-      {renderResults()}
+      {Array.isArray(results) && (
+        <table className="customer-search-results">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>City</th>
+              <th>Street</th>
+              <th>Contact</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {results.map((customer, index) => (
+              <tr key={index}>
+                <td>{customer.name}</td>
+                <td>{customer.city}</td>
+                <td>{customer.street}</td>
+                <td>{customer.contact}</td>
+                <td>
+                  <button onClick={() => handleCreateQuote(customer)}>
+                    Create New Quote
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
 
-      {/* Form for adding quote details */}
-      <form onSubmit={(e) => e.preventDefault()}>
-        <input
-          type="email"
-          value={customerEmail}
-          onChange={(e) => setCustomerEmail(e.target.value)}
-          placeholder="Customer Contact"
-          required
-        />
-        <input
-          type="text"
-          value={associateId}
-          onChange={(e) => setAssociateId(e.target.value)}
-          placeholder="Associate ID"
-          required
-        />
-        {/* Line Items Section */}
-          {lineItems.map((item, index) => (
-            <div key={index} className="line-item-form">
+      {showQuoteForm && (
+        <div className="quote-form-overlay">
+          <div className="quote-form">
+            <h3>Create New Quote</h3>
+            <form onSubmit={(e) => e.preventDefault()}>
               <input
-                type="text"
-                placeholder="Item Name"
-                value={item.name}
-                onChange={(e) => handleLineItemChange(index, 'name', e.target.value)}
+                type="email"
+                value={customerEmail}
+                onChange={(e) => setCustomerEmail(e.target.value)}
+                placeholder="Customer Email"
                 required
               />
               <input
                 type="text"
-                placeholder="Item Description"
-                value={item.description}
-                onChange={(e) => handleLineItemChange(index, 'description', e.target.value)}
+                value={selectedCustomer.street}
+                readOnly
+                placeholder="Address"
               />
-              <input
-                type="number"
-                placeholder="Item Amount"
-                value={item.amount}
-                onChange={(e) => handleLineItemChange(index, 'amount', e.target.value)}
-                required
+              {lineItems.map((item, index) => (
+                <div key={index} className="line-item-form">
+                  <input
+                    type="text"
+                    placeholder="Item Name"
+                    value={item.name}
+                    onChange={(e) => handleLineItemChange(index, 'name', e.target.value)}
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Item Description"
+                    value={item.description}
+                    onChange={(e) => handleLineItemChange(index, 'description', e.target.value)}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Item Amount"
+                    value={item.amount}
+                    onChange={(e) => handleLineItemChange(index, 'amount', e.target.value)}
+                    required
+                  />
+                  <button type="button" onClick={() => removeLineItem(index)}>
+                    Remove
+                  </button>
+                </div>
+              ))}
+              <button type="button" onClick={addLineItem}>
+                Add Line Item
+              </button>
+              <textarea
+                value={secretNote}
+                onChange={(e) => setSecretNote(e.target.value)}
+                placeholder="Secret Note"
               />
-              <button type="button" onClick={() => removeLineItem(index)}>Remove</button>
-            </div>
-          ))}
-        <button type="button" onClick={addLineItem}>Add Line Item</button>
-
-        <textarea
-          value={secretNote}
-          onChange={(e) => setSecretNote(e.target.value)}
-          placeholder="Secret Note"
-        />
-        <button type="button" onClick={finalizeQuote}>Finalize Quote</button>
-      </form>
+              <button type="button" onClick={finalizeQuote}>
+                Finalize Quote
+              </button>
+              <button type="button" onClick={handleCloseQuoteForm}>
+                Cancel
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
