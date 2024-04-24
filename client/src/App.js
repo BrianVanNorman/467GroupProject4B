@@ -5,7 +5,7 @@ import EnterQuote from './enter-quote/EnterQuote';
 import SanctionQuote from './sanction-quote/SanctionQuote';
 import ConvertQuote from './convert-quote/ConvertQuote';
 import MaintainRecords from './maintain-records/MaintainRecords';
-import Login from './Login';
+import Login from './Login'; // Import the Login component
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -13,7 +13,8 @@ function App() {
   const handleLogin = (username, password) => {
     console.log("Login Attempt:", username, password);
     // Simulate authentication logic
-    if (username === 'admin' && password === 'admin') { 
+    // Normally, you would verify credentials via an API here
+    if (username === 'admin' && password === 'admin') {  // Example credentials check
       setIsAuthenticated(true);
       return true; // Indicate successful login
     }
@@ -50,7 +51,12 @@ function App() {
         </header>
         <main>
           <Routes>
-            <Route path="/" element={<Navigate replace to="/login" />} />
+            <Route path="/" element={
+              <div>
+                <h2>Welcome to the Sales Quote Management System</h2>
+                <p>Select an option from the menu to get started.</p>
+              </div>
+            } />
             <Route path="/login" element={<Login onLogin={handleLogin} />} />
             <Route path="/enter-quote" element={
               isAuthenticated ? <EnterQuote /> : <Navigate replace to="/login" />
