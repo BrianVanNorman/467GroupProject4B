@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const ItemModel = require('./models/Item'); // Path to Item model
+const SalesAssociateModel = require('./models/SalesAssociate'); // Path to Sales Associate model
 
 const connectDB = async () => {
   try {
@@ -22,12 +23,19 @@ const itemsData = [
     { name: 'Item 4', description: 'Description for Item 4', amount: 250 },
     { name: 'Item 5', description: 'Description for Item 5', amount: 300 }
 ];
+const salesAssociateData = [
+  { name: 'Elon Musk', password: '12345', address: 'SpaceX, Cape Canaveral, FL 32920'},
+  { name: 'John Doe', password: '54321', address: 'NIU, Dekalb, IL 60115'}
+];
 
 // Connect to MongoDB
 mongoose.connect('mongodb://localhost:27017/QuoteSystem', { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
         // Insert sample items into the database
-        return ItemModel.insertMany(itemsData);
+        return (
+          ItemModel.insertMany(itemsData),
+          SalesAssociateModel.insertMany(salesAssociateData)
+        )
     })
     .then(() => {
         console.log('Items inserted successfully');

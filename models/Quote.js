@@ -27,18 +27,6 @@ const QuoteSchema = new Schema({
   },
 });
 
-// Calculations for converting to purchase order:
-/*QuoteSchema.methods.calculateFinalPrice = function() {
-  let totalPrice = this.lineItems.reduce((sum, item) => sum + item.price, 0);
-  this.finalPrice = totalPrice - (totalPrice * (this.discount / 100));
-};
-
-QuoteSchema.pre('save', function(next) {
-  this.calculateFinalPrice();
-  next();
-});*/
-
-
 const QuoteModel = mongoose.model('Quote', QuoteSchema);
 
 module.exports = QuoteModel;
