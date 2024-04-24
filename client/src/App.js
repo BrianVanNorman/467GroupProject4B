@@ -1,12 +1,25 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes, Link, Navigate, useNavigate } from 'react-router-dom';
 import './App.css';
 import EnterQuote from './enter-quote/EnterQuote';
 import SanctionQuote from './sanction-quote/SanctionQuote';
 import ConvertQuote from './convert-quote/ConvertQuote';
 import MaintainRecords from './maintain-records/MaintainRecords';
+import Login from './Login';
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const handleLogin = (username, password) => {
+    console.log("Login Attempt:", username, password);
+    // Simulate authentication logic
+    if (username === 'admin' && password === 'admin') { 
+      setIsAuthenticated(true);
+      return true; // Indicate successful login
+    }
+    return false;
+  };
+
   return (
     <Router>
       <div className="App">
@@ -18,7 +31,10 @@ function App() {
                 <Link className="button-link" to="/">Home</Link>
               </li>
               <li>
-                <Link className="button-link" to="/enter-quote">Enter Sales Quote</Link>
+                {isAuthenticated
+                  ? <Link className="button-link" to="/enter-quote">Enter Sales Quote</Link>
+                  : <Link className="button-link" to="/login">Enter Sales Quote</Link>
+                }
               </li>
               <li>
                 <Link className="button-link" to="/sanction-quote">Sanction Quote</Link>
@@ -34,13 +50,11 @@ function App() {
         </header>
         <main>
           <Routes>
-            <Route path="/" element={
-              <div>
-                <h2>Welcome to the Sales Quote Management System</h2>
-                <p>Select an option from the menu to get started.</p>
-              </div>
+            <Route path="/" element={<Navigate replace to="/login" />} />
+            <Route path="/login" element={<Login onLogin={handleLogin} />} />
+            <Route path="/enter-quote" element={
+              isAuthenticated ? <EnterQuote /> : <Navigate replace to="/login" />
             } />
-            <Route path="/enter-quote" element={<EnterQuote />} />
             <Route path="/sanction-quote" element={<SanctionQuote />} />
             <Route path="/convert-quote" element={<ConvertQuote />} />
             <Route path="/maintain-records" element={<MaintainRecords />} />
