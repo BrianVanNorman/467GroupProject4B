@@ -17,17 +17,18 @@ const connectDB = async () => {
       { name: 'Isaac Newton', password: 'Gravity3', address: 'Woolsthorpe Manor, Grantham NG33 5PD, UK', commision: 0.00}
     ];
 
-    for (const associate of salesAssociateData) {
-      const exists = await SalesAssociateModel.findOne({ name: associate.name });
-      if (!exists) {
-        await SalesAssociateModel.create(associate);
-        console.log(`Inserted ${associate.name} into the database.`);
-      } else {
-        console.log(`${associate.name} already exists.`);
-      }
+    // Check if any of the entries already exist in the database
+    const names = salesAssociateData.map(associate => associate.name);
+    const existingAssociates = await SalesAssociateModel.find({ name: { $in: names } });
+
+    if (existingAssociates.length === 0) {
+      // None of the entries exist, proceed with bulk insertion
+      await SalesAssociateModel.insertMany(salesAssociateData);
+      console.log('All new associates inserted successfully.');
+    } else {
+      console.log('One or more associates already exist. No new data inserted.');
     }
 
-    console.log('Data insertion process completed.');
     mongoose.connection.close();
   } catch (err) {
     console.error('Error connecting to MongoDB:', err.message);

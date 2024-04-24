@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors'); // You need to install cors with npm install cors
-const connectDB = require('./db');
+//const connectDB = require('./db');
 //const connectLegacyDB = require('./legacyDB');
 const routes = require('./controllers/routes');
 
@@ -9,7 +9,7 @@ const app = express();
 const port = process.env.PORT || 3001; // Use environment variable for port if set
 
 // Connect to MongoDB
-connectDB();
+//connectDB();
 
 // Connect to the legacy MySQL database
 //connectLegacyDB();
