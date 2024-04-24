@@ -25,7 +25,10 @@ const connectDB = async () => {
 ];*/
 const salesAssociateData = [
   { name: 'Elon Musk', password: '12345', address: 'SpaceX, Cape Canaveral, FL 32920'},
-  { name: 'John Doe', password: '54321', address: 'NIU, Dekalb, IL 60115'}
+  { name: 'John Doe', password: '54321', address: 'NIU, Dekalb, IL 60115'},
+  { name: 'Albert Einstein', password: 'Relativity1', address: '112 Mercer St, Princeton, NJ 08540'},
+  { name: 'Marie Curie', password: 'Radium2', address: '36 Rue Cuvier, Paris, 75005'},
+  { name: 'Isaac Newton', password: 'Gravity3', address: 'Woolsthorpe Manor, Grantham NG33 5PD, UK'}
 ];
 
 // Connect to MongoDB
@@ -38,12 +41,12 @@ mongoose.connect('mongodb://localhost:27017/QuoteSystem', { useNewUrlParser: tru
         )
     })
     .then(() => {
-        console.log('Items inserted successfully');
+        console.log('Data inserted successfully');
         // Close the connection after insertion
         return mongoose.connection.close();
     })
     .catch(err => {
-        console.error('There was an error inserting items:', err);
+        console.error('There was an error inserting data:', err);
     });
 
 module.exports = connectDB;
