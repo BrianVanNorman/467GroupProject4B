@@ -1,13 +1,72 @@
 .sanction-quote {
-    margin: 20px;
-    padding: 20px;
-    border-radius: 8px;
-    background-color: #f5f5f5;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
-  
-  .sanction-quote h2 {
-    color: #333;
-    margin-bottom: 20px;
-  }
+  margin: 20px;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #f5f5f5;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.sanction-quote h2 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.sanction-quote table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.sanction-quote th,
+.sanction-quote td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ccc;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.line-items {
+  margin-bottom: 20px;
+}
+
+.line-item {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.line-item input {
+  flex: 1;
+  padding: 5px;
+}
+
+.discount {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.discount select,
+.discount input {
+  padding: 5px;
+}
