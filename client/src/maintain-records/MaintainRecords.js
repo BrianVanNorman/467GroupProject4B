@@ -31,7 +31,8 @@ function MaintainRecords() {
   const fetchQuotes = async () => {
     try {
       const response = await axios.get('/api/quotes', { params: searchParams });
-      setQuotes(response.data);
+      const data = Array.isArray(response.data) ? response.data : [];
+      setQuotes(data);
     } catch (error) {
       console.error('Error fetching quotes:', error);
     }
@@ -156,15 +157,21 @@ function MaintainRecords() {
             </tr>
           </thead>
           <tbody>
-            {quotes.map((quote) => (
-              <tr key={quote._id}>
-                <td>{quote._id}</td>
-                <td>{quote.customer_email}</td>
-                <td>{quote.amount}</td>
-                <td>{quote.status}</td>
+            {quotes.length > 0 ? (
+              quotes.map((quote) => (
+                <tr key={quote._id}>
+                  <td>{quote._id}</td>
+                  <td>{quote.customer_email}</td>
+                  <td>{quote.amount}</td>
+                  <td>{quote.status}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4">No quotes found</td>
               </tr>
-            ))}
-          </tbody>
+            )}
+            </tbody>
         </table>
       </div>
 

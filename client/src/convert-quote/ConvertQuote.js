@@ -15,7 +15,8 @@ function ConvertQuote() {
   const fetchSanctionedQuotes = async () => {
     try {
       const response = await axios.get('/api/quotes/sanctioned');
-      setSanctionedQuotes(response.data);
+      const data = Array.isArray(response.data) ? response.data : [];
+      setSanctionedQuotes(data);
     } catch (error) {
       console.error('Error fetching sanctioned quotes:', error);
     }
@@ -47,21 +48,27 @@ function ConvertQuote() {
           </tr>
         </thead>
         <tbody>
-          {sanctionedQuotes.map((quote) => (
-            <tr key={quote._id}>
-              <td>{quote._id}</td>
-              <td>{quote.customer_email}</td>
-              <td>{quote.amount}</td>
-              <td>
-                <button onClick={() => {
-                  setSelectedQuote(quote);
-                  setShowModal(true);
-                }}>
-                  Process Order
-                </button>
-              </td>
+         {sanctionedQuotes.length > 0 ? (
+            sanctionedQuotes.map((quote) => (
+              <tr key={quote._id}>
+                <td>{quote._id}</td>
+                <td>{quote.customer_email}</td>
+                <td>{quote.amount}</td>
+                <td>
+                  <button onClick={() => {
+                    setSelectedQuote(quote);
+                    setShowModal(true);
+                  }}>
+                    Process Order
+                  </button>
+                </td>
+              </tr>
+            )) 
+          ) : (
+            <tr>
+              <td colSpan="4">No sanctioned quotes found</td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
 

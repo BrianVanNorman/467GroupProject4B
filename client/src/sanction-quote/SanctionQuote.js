@@ -17,7 +17,8 @@ function SanctionQuote() {
   const fetchFinalizedQuotes = async () => {
     try {
       const response = await axios.get('/api/quotes/finalized');
-      setFinalizedQuotes(response.data);
+      const data = Array.isArray(response.data) ? response.data : [];
+      setFinalizedQuotes(data);
     } catch (error) {
       console.error('Error fetching finalized quotes:', error);
     }
@@ -66,23 +67,29 @@ function SanctionQuote() {
           </tr>
         </thead>
         <tbody>
-          {finalizedQuotes.map((quote) => (
-            <tr key={quote._id}>
-              <td>{quote._id}</td>
-              <td>{quote.customer_email}</td>
-              <td>{quote.amount}</td>
-              <td>
-                <button onClick={() => {
-                  setSelectedQuote(quote);
-                  setLineItems(quote.line_items);
-                  setSecretNotes(quote.secret_notes);
-                  setShowModal(true);
-                }}>
-                  Sanction Quote
-                </button>
-              </td>
+          {finalizedQuotes.length > 0 ? (
+            finalizedQuotes.map((quote) => (
+              <tr key={quote._id}>
+                <td>{quote._id}</td>
+                <td>{quote.customer_email}</td>
+                <td>{quote.amount}</td>
+                <td>
+                  <button onClick={() => {
+                    setSelectedQuote(quote);
+                    setLineItems(quote.line_items);
+                    setSecretNotes(quote.secret_notes);
+                    setShowModal(true);
+                  }}>
+                    Sanction Quote
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="4">No finalized quotes found</td>
             </tr>
-          ))}
+            )}
         </tbody>
       </table>
 
