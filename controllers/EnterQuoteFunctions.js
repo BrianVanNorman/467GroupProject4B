@@ -1,5 +1,8 @@
 const connectLegacyDB = require('../legacyDB');
 const QuoteModel = require('../models/Quote');
+const connectDB = require('../db');
+const mongoose = require('mongoose');
+
 
 
 //Search function for searching through Legacy DB
@@ -18,9 +21,13 @@ const searchCustomersByName = async (req, res) => {
   }
 };
 
-// Function to create a new quote document
 const createNewQuote = async (req, res) => {
   try {
+      // Attempt to establish a connection if not already connected
+      if (mongoose.connection.readyState !== 1) {
+          await connectDB();
+      }
+
       const quoteData = req.body; // Assuming the data is sent in the body of a POST request
       const newQuote = new QuoteModel(quoteData);
       const savedQuote = await newQuote.save();
@@ -30,5 +37,4 @@ const createNewQuote = async (req, res) => {
       res.status(500).send('Failed to create quote: ' + error.message);
   }
 };
-
 module.exports = { searchCustomersByName, createNewQuote };

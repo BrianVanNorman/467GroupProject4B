@@ -40,7 +40,7 @@ const quoteSchema = new Schema({
     }
 });
 
-quoteSchema.pre('save', async function(next) {
+/*quoteSchema.pre('save', async function(next) {
     console.log("Pre-save hook triggered.");
     if (mongoose.connection.readyState !== 1) {
         console.error("Database not connected.");
@@ -70,6 +70,7 @@ quoteSchema.pre('save', async function(next) {
         next();
     }
 });
+*/
 
 const QuoteModel = mongoose.model('Quote', quoteSchema);
 module.exports = QuoteModel;
