@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './EnterQuote.css';
 
+// Global variable import for associate's name that is currently logged in
+import { GlobalUsername } from '../App.js';
+
 function EnterQuote() {
 
   // State variables for search field
@@ -137,6 +140,7 @@ function EnterQuote() {
 
   return (
     <div className="enter-quote">
+      <h3 className="associate-info">Logged in as: {GlobalUsername}</h3>
       <h2>Enter Sales Quote</h2>
       <div className="form-group">
         <label htmlFor="customer-search">Customer Name:</label>
