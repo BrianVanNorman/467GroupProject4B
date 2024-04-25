@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './EnterQuote.css';
+const mongoose = require('mongoose');
+
 
 // Global variable import for associate's name that is currently logged in
 import { GlobalUsername } from '../App.js';
@@ -16,9 +18,11 @@ function EnterQuote() {
   const [showQuoteForm, setShowQuoteForm] = useState(false);
   // State variables for form fields when entering a quote
   const [customerEmail, setCustomerEmail] = useState('');
-  const [associateId] = useState('');
+  //const [associateId] = useState('');
   const [lineItems, setLineItems] = useState([{ name: '', description: '', amount: '' },]);
   const [secretNote] = useState('');
+
+ // const associateId = '192';
 
   // Function to add a new secret note
   const addSecretNote = () => {
@@ -72,13 +76,14 @@ function EnterQuote() {
     try {
       const quoteData = {
         customer_email: customerEmail,
-        associate_id: associateId,
+        associate_id: new mongoose.Types.ObjectId('000000000000000000000192'), // Mock ObjectId
         line_items: lineItems,
         secret_note: secretNote,
         customer_id: selectedCustomer.id, // Include the selected customer's ID
         customer_address: selectedCustomer.street, // Include the selected customer's address
+        date: new Date(), // Add the current date and time
       };
-
+  
       const response = await axios.post('/api/quotes', quoteData);
       if (response.status === 201) {
         alert('Quote finalized successfully!');
