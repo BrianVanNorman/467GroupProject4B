@@ -183,55 +183,49 @@ function EnterQuote() {
           <div className="quote-form">
             <h3>Create New Quote</h3>
             <form onSubmit={(e) => e.preventDefault()}>
-              <input
-                type="email"
-                value={customerEmail}
-                onChange={(e) => setCustomerEmail(e.target.value)}
-                placeholder="Customer Email"
-                required
-              />
-              <div className="address-container">
-                <input
-                  type="text"
-                  value={selectedCustomer.street}
-                  readOnly
-                  placeholder="Street"
-                />
-                <input
-                  type="text"
-                  value={selectedCustomer.city}
-                  readOnly
-                  placeholder="City"
-                />
-                <input
-                  type="text"
-                  value={selectedCustomer.contact}
-                  readOnly
-                  placeholder="Contact"
-                />
-              </div>
-              {lineItems.map((item, index) => (
-                <div key={index} className="line-item-form">
-                  <input
-                    type="text"
-                    placeholder="Item Name"
-                    value={item.name}
-                    onChange={(e) => handleLineItemChange(index, 'name', e.target.value)}
-                    required
-                  />
-                  <input
-                    type="text"
-                    placeholder="Item Description"
-                    value={item.description}
-                    onChange={(e) => handleLineItemChange(index, 'description', e.target.value)}
-                  />
-                  <input
-                    type="number"
-                    placeholder="Item Amount"
-                    value={item.amount}
-                    onChange={(e) => handleLineItemChange(index, 'amount', e.target.value)}
-                    required
-                  />
+            <input
+          type="email"
+          value={customerEmail}
+          onChange={(e) => setCustomerEmail(e.target.value)}
+          placeholder="Customer Email"
+          required
+        />
+        <div className="address-container">
+          <input
+            type="text"
+            value={selectedCustomer.street}
+            readOnly
+            placeholder="Street"
+          />
+          <input
+            type="text"
+            value={selectedCustomer.city}
+            readOnly
+            placeholder="City"
+          />
+          <input
+            type="text"
+            value={selectedCustomer.contact}
+            readOnly
+            placeholder="Contact"
+          />
+        </div>
+        {lineItems.map((item, index) => (
+          <div key={index} className="line-item-form">
+            <input
+              type="text"
+              placeholder="Description" 
+              value={item.description}
+              onChange={(e) => handleLineItemChange(index, 'description', e.target.value)}
+              required
+            />
+            <input
+              type="number"
+              placeholder="Item Amount"
+              value={item.amount}
+              onChange={(e) => handleLineItemChange(index, 'amount', e.target.value)}
+              required
+            />
                   <button type="button" onClick={() => removeLineItem(index)}>
                     Remove
                   </button>
