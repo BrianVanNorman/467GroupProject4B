@@ -1,8 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const { searchCustomersByName, createNewQuote } = require('./EnterQuoteFunctions');
+const { searchAssociates } = require('./LoginFunctions');
 
 // Define routes here
+
+//                    //
+// EnterQuote routes: //
+//                    //
 
 // Search through Legacy DB
 router.get('/customers/search', searchCustomersByName);
@@ -20,5 +25,12 @@ router.post('/quotes', async (req, res) => {
       res.status(500).send('Failed to create quote');
     }
 });
+
+//               //
+// Login routes: //
+//               //
+
+// Compare user input for username/password to all entries for sales associate account in DB
+router.get('/associates/search', searchAssociates);
 
 module.exports = router;

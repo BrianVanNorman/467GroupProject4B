@@ -6,11 +6,13 @@ function Login({ onLogin }) {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    if (onLogin(username, password)) {
+    var response = await onLogin(username, password);
+    if (response === true) {
       navigate('/enter-quote'); // Redirect to Enter Quote page on successful login
-    } else {
+    } 
+    else {
       alert('Invalid username or password!');
     }
   };
