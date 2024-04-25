@@ -158,6 +158,7 @@ function EnterQuote() {
         <table className="customer-search-results">
           <thead>
             <tr>
+              <th>ID</th>
               <th>Name</th>
               <th>City</th>
               <th>Street</th>
@@ -168,6 +169,7 @@ function EnterQuote() {
           <tbody>
             {results.map((customer, index) => (
               <tr key={index}>
+                <td>{customer.id}</td>
                 <td>{customer.name}</td>
                 <td>{customer.city}</td>
                 <td>{customer.street}</td>

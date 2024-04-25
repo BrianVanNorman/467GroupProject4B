@@ -8,7 +8,7 @@ const searchCustomersByName = async (req, res) => {
   try {
     const conn = await connectLegacyDB();
     const [rows] = await conn.execute(
-      'SELECT name, city, street, contact FROM customers WHERE name LIKE ?',
+      'SELECT id, name, city, street, contact FROM customers WHERE name LIKE ?',
       [`%${searchTerm}%`]
     );
     res.json(rows);
