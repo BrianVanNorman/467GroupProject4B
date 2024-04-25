@@ -7,14 +7,34 @@ function EnterQuote() {
   // State variables for search field
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState(null); // Initialize to null for better type checking
+  const [secretNotes, setSecretNotes] = useState(['']);
 
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [showQuoteForm, setShowQuoteForm] = useState(false);
   // State variables for form fields when entering a quote
   const [customerEmail, setCustomerEmail] = useState('');
-  const [associateId, setAssociateId] = useState('');
+  const [associateId] = useState('');
   const [lineItems, setLineItems] = useState([{ name: '', description: '', amount: '' },]);
-  const [secretNote, setSecretNote] = useState('');
+  const [secretNote] = useState('');
+
+  // Function to add a new secret note
+  const addSecretNote = () => {
+    setSecretNotes([...secretNotes, '']);
+  };
+
+  // Function to handle secret note changes
+  const handleSecretNoteChange = (index, value) => {
+    const newSecretNotes = secretNotes.map((note, i) =>
+      i === index ? value : note
+    );
+    setSecretNotes(newSecretNotes);
+  };
+
+  // Function to remove a secret note
+  const removeSecretNote = (index) => {
+    const newSecretNotes = secretNotes.filter((_, i) => i !== index);
+    setSecretNotes(newSecretNotes);
+  };
 
   // Function to add a new line item
   const addLineItem = () => {
@@ -83,6 +103,7 @@ function EnterQuote() {
     }
   };
 
+  /*
   const renderResults = () => {
     if (Array.isArray(results)) {
       return (
@@ -112,6 +133,7 @@ function EnterQuote() {
     }
     return <p>No results found.</p>;
   };
+  */
 
   return (
     <div className="enter-quote">
@@ -155,7 +177,7 @@ function EnterQuote() {
           </tbody>
         </table>
       )}
-
+  
       {showQuoteForm && (
         <div className="quote-form-overlay">
           <div className="quote-form">
@@ -168,12 +190,26 @@ function EnterQuote() {
                 placeholder="Customer Email"
                 required
               />
-              <input
-                type="text"
-                value={selectedCustomer.street}
-                readOnly
-                placeholder="Address"
-              />
+              <div className="address-container">
+                <input
+                  type="text"
+                  value={selectedCustomer.street}
+                  readOnly
+                  placeholder="Street"
+                />
+                <input
+                  type="text"
+                  value={selectedCustomer.city}
+                  readOnly
+                  placeholder="City"
+                />
+                <input
+                  type="text"
+                  value={selectedCustomer.contact}
+                  readOnly
+                  placeholder="Contact"
+                />
+              </div>
               {lineItems.map((item, index) => (
                 <div key={index} className="line-item-form">
                   <input
@@ -201,20 +237,32 @@ function EnterQuote() {
                   </button>
                 </div>
               ))}
-              <button type="button" onClick={addLineItem}>
-                Add Line Item
-              </button>
-              <textarea
-                value={secretNote}
-                onChange={(e) => setSecretNote(e.target.value)}
-                placeholder="Secret Note"
-              />
-              <button type="button" onClick={finalizeQuote}>
-                Finalize Quote
-              </button>
-              <button type="button" onClick={handleCloseQuoteForm}>
-                Cancel
-              </button>
+              {secretNotes.map((note, index) => (
+                <div key={index} className="secret-note-form">
+                  <textarea
+                    value={note}
+                    onChange={(e) => handleSecretNoteChange(index, e.target.value)}
+                    placeholder="Secret Note"
+                  />
+                  <button type="button" onClick={() => removeSecretNote(index)}>
+                    Remove
+                  </button>
+                </div>
+              ))}
+              <div className="action-buttons">
+                <button type="button" onClick={addSecretNote}>
+                  Add Secret Note
+                </button>
+                <button type="button" onClick={addLineItem}>
+                  Add Line Item
+                </button>
+                <button type="button" onClick={finalizeQuote}>
+                  Finalize Quote
+                </button>
+                <button type="button" onClick={handleCloseQuoteForm}>
+                  Cancel
+                </button>
+              </div>
             </form>
           </div>
         </div>
