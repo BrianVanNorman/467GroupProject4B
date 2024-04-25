@@ -129,3 +129,8 @@
   background: none; /* Remove the background */
   border: none; /* Remove the border */
 }
+
+.associate-info {
+  display: flex;
+  flex-direction: row; /* aligns associate login name to left side */
+}

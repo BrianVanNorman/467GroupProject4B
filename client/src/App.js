@@ -8,6 +8,9 @@ import MaintainRecords from './maintain-records/MaintainRecords';
 import Login from './Login'; // Import the Login component
 import axios from 'axios';  // Import axios to query DB
 
+// Global variables for EnterQuote.js
+var GlobalUsername = '';
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -31,6 +34,8 @@ function App() {
     // Bool is only true if username/password provided are in database
     if (bool === true) {
       setIsAuthenticated(true);
+      // Set global variables for EnterQuote page
+      GlobalUsername = username;
       return true; // Indicate successful login
     } 
     console.log("Login super successful!!!");
@@ -86,5 +91,7 @@ function App() {
     </Router>
   );
 }
+
+export { GlobalUsername };
 
 export default App;
