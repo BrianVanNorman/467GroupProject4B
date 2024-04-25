@@ -6,18 +6,34 @@ import SanctionQuote from './sanction-quote/SanctionQuote';
 import ConvertQuote from './convert-quote/ConvertQuote';
 import MaintainRecords from './maintain-records/MaintainRecords';
 import Login from './Login'; // Import the Login component
+import axios from 'axios';  // Import axios to query DB
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const handleLogin = (username, password) => {
+  const handleLogin = async (username, password) => {
     console.log("Login Attempt:", username, password);
-    // Simulate authentication logic
-    // Normally, you would verify credentials via an API here
-    if (username === 'admin' && password === 'admin') {  // Example credentials check
+
+    var bool;
+
+    try {
+      // Check is username/password is in DB and set boolean value accordingly
+      const response = await axios.get(`/api/associates/search`, {
+        params: { name: username, pass: password}
+      });
+      bool = response.data;
+    } 
+    catch (error) {
+      console.error('Error fetching sales associate:', error);
+      alert('An error occurred while checking for successful login.');
+    }
+
+    // Bool is only true if username/password provided are in database
+    if (bool === true) {
       setIsAuthenticated(true);
       return true; // Indicate successful login
-    }
+    } 
+    console.log("Login super successful!!!");
     return false;
   };
 
