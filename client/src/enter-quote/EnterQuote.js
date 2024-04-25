@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './EnterQuote.css';
-const mongoose = require('mongoose');
-
 
 // Global variable import for associate's name that is currently logged in
 import { GlobalUsername } from '../App.js';
+
+const mongoose = require('mongoose');
+
 
 function EnterQuote() {
 
