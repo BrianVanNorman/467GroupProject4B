@@ -78,7 +78,11 @@ function EnterQuote() {
       const quoteData = {
         customer_email: customerEmail,
         associate_id: new mongoose.Types.ObjectId('000000000000000000000192'), // Mock ObjectId
-        line_items: lineItems,
+        line_items: lineItems.map(item => ({
+          name: item.name,
+          description: item.description,
+          amount: parseFloat(item.amount) // Ensure this is a number
+        })),
         secret_note: secretNote,
         customer_id: selectedCustomer.id, // Include the selected customer's ID
         customer_address: selectedCustomer.street, // Include the selected customer's address
@@ -111,38 +115,6 @@ function EnterQuote() {
       setResults([]); // Ensure results is set to an empty array on error
     }
   };
-
-  /*
-  const renderResults = () => {
-    if (Array.isArray(results)) {
-      return (
-        <table className="customer-search-results">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>City</th>
-              <th>Street</th>
-              <th>Contact</th>
-            </tr>
-          </thead>
-          <tbody>
-            {results.map((customer, index) => (
-              <tr key={index}>
-                <td>{customer.name}</td>
-                <td>{customer.city}</td>
-                <td>{customer.street}</td>
-                <td>{customer.contact}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      );
-    } else if (results) {
-      return <p>Received data is not in the expected format.</p>;
-    }
-    return <p>No results found.</p>;
-  };
-  */
 
   return (
     <div className="enter-quote">

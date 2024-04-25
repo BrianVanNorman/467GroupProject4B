@@ -19,19 +19,16 @@ const searchCustomersByName = async (req, res) => {
 };
 
 // Function to create a new quote document
-const createNewQuote = async (quoteData) => {
-  // Create a new Quote model instance with the provided data
-  const quote = new QuoteModel({
-    customer_email: quoteData.customer_email,
-    associate_id: quoteData.associate_id,
-    line_items: quoteData.line_items, // This assumes that items is an array of item IDs
-    status: 'finalized',
-    secret_note: quoteData.secret_note,
-  });
-
-  // Save the new quote to the database
-  const savedQuote = await quote.save();
-  return savedQuote;
+const createNewQuote = async (req, res) => {
+  try {
+      const quoteData = req.body; // Assuming the data is sent in the body of a POST request
+      const newQuote = new QuoteModel(quoteData);
+      const savedQuote = await newQuote.save();
+      res.status(201).json(savedQuote);
+  } catch (error) {
+      console.error('Failed to create quote:', error);
+      res.status(500).send('Failed to create quote: ' + error.message);
+  }
 };
 
 module.exports = { searchCustomersByName, createNewQuote };
