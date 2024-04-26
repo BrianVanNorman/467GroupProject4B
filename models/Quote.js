@@ -39,10 +39,9 @@ const quoteSchema = new Schema({
         enum: ['draft', 'finalized', 'sanctioned', 'ordered'], 
         default: 'draft'
     },
-    secret_note: {
-        type: String
-    }
+    secret_notes: [String]
 });
+
 
 quoteSchema.pre('save', async function(next) {
     console.log("Pre-save hook triggered.");

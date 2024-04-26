@@ -6,25 +6,17 @@ import './EnterQuote.css';
 import { GlobalUsername } from '../App.js';
 import { GlobalUserID } from '../App.js';
 
-//const mongoose = require('mongoose');
-
-
 function EnterQuote() {
-
   // State variables for search field
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState(null); // Initialize to null for better type checking
-  const [secretNotes, setSecretNotes] = useState(['']);
 
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [showQuoteForm, setShowQuoteForm] = useState(false);
   // State variables for form fields when entering a quote
   const [customerEmail, setCustomerEmail] = useState('');
-  //const [associateId] = useState('');
-  const [lineItems, setLineItems] = useState([{ description: '', quantity: '', price: '' },]);
-  const [secretNote] = useState('');
-
- // const associateId = '192';
+  const [lineItems, setLineItems] = useState([{ description: '', quantity: '', price: '' }]);
+  const [secretNotes, setSecretNotes] = useState(['']);
 
   // Function to add a new secret note
   const addSecretNote = () => {
@@ -47,7 +39,7 @@ function EnterQuote() {
 
   // Function to add a new line item
   const addLineItem = () => {
-    setLineItems([...lineItems, { name: '', description: '', amount: '' }]);
+    setLineItems([...lineItems, { description: '', quantity: '', price: '' }]);
   };
 
   // Function to handle line item changes
@@ -79,13 +71,13 @@ function EnterQuote() {
     try {
       const quoteData = {
         customer_email: customerEmail,
-        associate_id: GlobalUserID,  // Use the global user ID saved during login
+        associate_id: GlobalUserID, // Use the global user ID saved during login
         line_items: lineItems.map(item => ({
           description: item.description,
-          price: item.price,
+          price: parseFloat(item.price),
           quantity: parseFloat(item.quantity)
         })),
-        secret_note: secretNote.secret_note,
+        secret_notes: secretNotes,
         customer_id: selectedCustomer.id,
         customer_address: selectedCustomer.street,
         status: 'finalized',
@@ -103,7 +95,7 @@ function EnterQuote() {
       console.error('Error finalizing quote:', error);
       alert('An error occurred while finalizing the quote.');
     }
-};
+  };
 
   const handleSearch = async () => {
     try {
@@ -122,7 +114,6 @@ function EnterQuote() {
       <h3 className="associate-info">Logged in as: {GlobalUsername}</h3>
       <h2>Enter Sales Quote</h2>
       <div className="form-group">
-        <label htmlFor="customer-search">Customer Name:</label>
         <input
           type="text"
           id="customer-search"
@@ -168,49 +159,56 @@ function EnterQuote() {
           <div className="quote-form">
             <h3>Create New Quote</h3>
             <form onSubmit={(e) => e.preventDefault()}>
-            <input
-          type="email"
-          value={customerEmail}
-          onChange={(e) => setCustomerEmail(e.target.value)}
-          placeholder="Customer Email"
-          required
-        />
-        <div className="address-container">
-          <input
-            type="text"
-            value={selectedCustomer.street}
-            readOnly
-            placeholder="Street"
-          />
-          <input
-            type="text"
-            value={selectedCustomer.city}
-            readOnly
-            placeholder="City"
-          />
-          <input
-            type="text"
-            value={selectedCustomer.contact}
-            readOnly
-            placeholder="Contact"
-          />
-        </div>
-        {lineItems.map((item, index) => (
-          <div key={index} className="line-item-form">
-            <input
-              type="text"
-              placeholder="Description" 
-              value={item.description}
-              onChange={(e) => handleLineItemChange(index, 'description', e.target.value)}
-              required
-            />
-            <input
-              type="number"
-              placeholder="Item Amount"
-              value={item.amount}
-              onChange={(e) => handleLineItemChange(index, 'amount', e.target.value)}
-              required
-            />
+              <input
+                type="email"
+                value={customerEmail}
+                onChange={(e) => setCustomerEmail(e.target.value)}
+                placeholder="Customer Email"
+                required
+              />
+              <div className="address-container">
+                <input
+                  type="text"
+                  value={selectedCustomer.street}
+                  readOnly
+                  placeholder="Street"
+                />
+                <input
+                  type="text"
+                  value={selectedCustomer.city}
+                  readOnly
+                  placeholder="City"
+                />
+                <input
+                  type="text"
+                  value={selectedCustomer.contact}
+                  readOnly
+                  placeholder="Contact"
+                />
+              </div>
+              {lineItems.map((item, index) => (
+                <div key={index} className="line-item-form">
+                  <input
+                    type="text"
+                    placeholder="Description" 
+                    value={item.description}
+                    onChange={(e) => handleLineItemChange(index, 'description', e.target.value)}
+                    required
+                  />
+                  <input
+                    type="number"
+                    placeholder="Quantity"
+                    value={item.quantity}
+                    onChange={(e) => handleLineItemChange(index, 'quantity', e.target.value)}
+                    required
+                  />
+                  <input
+                    type="number"
+                    placeholder="Price"
+                    value={item.price}
+                    onChange={(e) => handleLineItemChange(index, 'price', e.target.value)}
+                    required
+                  />
                   <button type="button" onClick={() => removeLineItem(index)}>
                     Remove
                   </button>
@@ -223,7 +221,8 @@ function EnterQuote() {
                     onChange={(e) => handleSecretNoteChange(index, e.target.value)}
                     placeholder="Secret Note"
                   />
-                  <button type="button" onClick={() => removeSecretNote(index)}>
+                  <button type="button" onClick={() => removeSecretNote(
+                    index)}>
                     Remove
                   </button>
                 </div>
