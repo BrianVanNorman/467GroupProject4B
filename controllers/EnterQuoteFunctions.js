@@ -3,8 +3,6 @@ const QuoteModel = require('../models/Quote');
 const connectDB = require('../db');
 const mongoose = require('mongoose');
 
-
-
 //Search function for searching through Legacy DB
 const searchCustomersByName = async (req, res) => {
   const searchTerm = req.query.name;

@@ -1,43 +1,30 @@
+const connectDB = require('../db'); 
 const mongoose = require('mongoose');   // To connect to MongoDB
 const SalesAssociateModel = require('../models/SalesAssociate');
 
 // Function to search through SalesAssociate table in DB
 const searchAssociates = async (req, res) => {
     try {
-        // Connect to database
-        await mongoose.connect('mongodb://localhost:27017/QuoteSystem', {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        });
+        // Ensure the database is connected
+        await connectDB();
 
         // Variables for inputted name/password
         const username = req.query.name;
-        const passw = req.query.pass;
+        const password = req.query.pass;
 
-        try {
-            // Check if username/password matches
-            const data = await SalesAssociateModel.find({name: username, password: passw});
-            if (data.length === 1) {
-                // Username/password in table
-                res.send(true);
-            }
-            else {   
-                // Username/password not in table
-                res.send(false);
-            }
+        // Check if username/password matches
+        const associate = await SalesAssociateModel.findOne({ name: username, password: password });
+        if (associate) {
+            // Send back the associate's _id if found
+            res.json({ success: true, associateId: associate._id.toString() });  // Convert _id to string
+        } else {   
+            // Respond not found if no associate matches
+            res.json({ success: false });
         }
-        catch (error) {
-            console.error('Error searching associates:', error);
-            res.send(false);
-        }
-
-        // Disconnect from database
-        mongoose.connection.close();
+    } catch (error) {
+        console.error('Error searching associates:', error);
+        res.status(500).send('Error in searching for associates');
     }
-    catch (err) {
-        console.error('Error connecting to MongoDB:', err.message);
-        process.exit(1); // Exit process with failure
-      }
 };
 
 module.exports = { searchAssociates };

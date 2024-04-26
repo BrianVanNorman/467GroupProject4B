@@ -4,8 +4,9 @@ import './EnterQuote.css';
 
 // Global variable import for associate's name that is currently logged in
 import { GlobalUsername } from '../App.js';
+import { GlobalUserID } from '../App.js';
 
-const mongoose = require('mongoose');
+//const mongoose = require('mongoose');
 
 
 function EnterQuote() {
@@ -20,7 +21,7 @@ function EnterQuote() {
   // State variables for form fields when entering a quote
   const [customerEmail, setCustomerEmail] = useState('');
   //const [associateId] = useState('');
-  const [lineItems, setLineItems] = useState([{ name: '', description: '', amount: '' },]);
+  const [lineItems, setLineItems] = useState([{ description: '', quantity: '', price: '' },]);
   const [secretNote] = useState('');
 
  // const associateId = '192';
@@ -72,28 +73,29 @@ function EnterQuote() {
     setSelectedCustomer(null);
     setShowQuoteForm(false);
   };
+
   // Function to handle form submission
   const finalizeQuote = async () => {
     try {
       const quoteData = {
         customer_email: customerEmail,
-        associate_id: new mongoose.Types.ObjectId('000000000000000000000192'), // Mock ObjectId
+        associate_id: GlobalUserID,  // Use the global user ID saved during login
         line_items: lineItems.map(item => ({
-          name: item.name,
           description: item.description,
-          amount: parseFloat(item.amount) // Ensure this is a number
+          price: item.price,
+          quantity: parseFloat(item.quantity)
         })),
-        secret_note: secretNote,
-        customer_id: selectedCustomer.id, // Include the selected customer's ID
-        customer_address: selectedCustomer.street, // Include the selected customer's address
-        date: new Date(), // Add the current date and time
+        secret_note: secretNote.secret_note,
+        customer_id: selectedCustomer.id,
+        customer_address: selectedCustomer.street,
+        status: 'finalized',
+        date: new Date(),
       };
-  
+
       const response = await axios.post('/api/quotes', quoteData);
       if (response.status === 201) {
         alert('Quote finalized successfully!');
         handleCloseQuoteForm();
-        // Clear the form or redirect as needed
       } else {
         alert('Failed to finalize quote.');
       }
@@ -101,8 +103,7 @@ function EnterQuote() {
       console.error('Error finalizing quote:', error);
       alert('An error occurred while finalizing the quote.');
     }
-  };
-
+};
 
   const handleSearch = async () => {
     try {

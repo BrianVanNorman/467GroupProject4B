@@ -23,9 +23,10 @@ const quoteSchema = new Schema({
     line_items: [{
       name: String,
       description: String,
-      amount: Number
+      price: Number,
+      quantity: Number
     }],
-    amount: {
+    total: {
         type: Number,
         default: 0.00,
     },
@@ -37,10 +38,13 @@ const quoteSchema = new Schema({
         type: String,
         enum: ['draft', 'finalized', 'sanctioned', 'ordered'], 
         default: 'draft'
+    },
+    secret_note: {
+        type: String
     }
 });
 
-/*quoteSchema.pre('save', async function(next) {
+quoteSchema.pre('save', async function(next) {
     console.log("Pre-save hook triggered.");
     if (mongoose.connection.readyState !== 1) {
         console.error("Database not connected.");
@@ -70,7 +74,7 @@ const quoteSchema = new Schema({
         next();
     }
 });
-*/
+
 
 const QuoteModel = mongoose.model('Quote', quoteSchema);
 module.exports = QuoteModel;
