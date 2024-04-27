@@ -157,8 +157,12 @@ function EnterQuote() {
       {showQuoteForm && (
         <div className="quote-form-overlay">
           <div className="quote-form">
-            <h3>Create New Quote</h3>
+            <h3>Create New Quote for {selectedCustomer.name}</h3>
             <form onSubmit={(e) => e.preventDefault()}>
+              <div className="address-container">
+                <p>{selectedCustomer.street}<br/>
+                {selectedCustomer.city}<br/>
+                {selectedCustomer.contact}</p>
               <input
                 type="email"
                 value={customerEmail}
@@ -166,31 +170,12 @@ function EnterQuote() {
                 placeholder="Customer Email"
                 required
               />
-              <div className="address-container">
-                <input
-                  type="text"
-                  value={selectedCustomer.street}
-                  readOnly
-                  placeholder="Street"
-                />
-                <input
-                  type="text"
-                  value={selectedCustomer.city}
-                  readOnly
-                  placeholder="City"
-                />
-                <input
-                  type="text"
-                  value={selectedCustomer.contact}
-                  readOnly
-                  placeholder="Contact"
-                />
               </div>
               {lineItems.map((item, index) => (
                 <div key={index} className="line-item-form">
                   <input
                     type="text"
-                    placeholder="Description" 
+                    placeholder="Description"
                     value={item.description}
                     onChange={(e) => handleLineItemChange(index, 'description', e.target.value)}
                     required

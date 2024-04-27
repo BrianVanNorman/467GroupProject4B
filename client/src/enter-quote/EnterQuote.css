@@ -118,16 +118,11 @@
 }
 
 .address-container {
+  text-align: left;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   margin-bottom: 10px;
-}
-
-.address-container input {
-  margin-bottom: 5px;
-  background: none; /* Remove the background */
-  border: none; /* Remove the border */
 }
 
 .associate-info {
