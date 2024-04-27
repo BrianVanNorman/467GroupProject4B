@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './EnterQuote.css';
 
@@ -9,21 +9,36 @@ import { GlobalUserID } from '../App.js';
 function EnterQuote() {
   // State variables for search field
   const [searchTerm, setSearchTerm] = useState('');
-  const [results, setResults] = useState(null); // Initialize to null for better type checking
+  const [results, setResults] = useState(null);
 
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [showQuoteForm, setShowQuoteForm] = useState(false);
-  // State variables for form fields when entering a quote
+  const [selectedQuote, setSelectedQuote] = useState(null);
   const [customerEmail, setCustomerEmail] = useState('');
   const [lineItems, setLineItems] = useState([{ description: '', quantity: '', price: '' }]);
   const [secretNotes, setSecretNotes] = useState(['']);
+  const [discount, setDiscount] = useState({ type: 'percent', value: 0 });
+  const [total, setTotal] = useState(0);
+  const [draftQuotes, setDraftQuotes] = useState([]);
 
-  // Function to add a new secret note
+  useEffect(() => {
+    fetchDraftQuotes();
+  }, []);
+
+
+  const fetchDraftQuotes = async () => {
+    try {
+      const response = await axios.get(`/api/quotes/draft?associateId=${GlobalUserID}`);
+      setDraftQuotes(response.data);
+    } catch (error) {
+      console.error('Error fetching draft quotes:', error);
+    }
+  };
+
   const addSecretNote = () => {
     setSecretNotes([...secretNotes, '']);
   };
 
-  // Function to handle secret note changes
   const handleSecretNoteChange = (index, value) => {
     const newSecretNotes = secretNotes.map((note, i) =>
       i === index ? value : note
@@ -31,29 +46,27 @@ function EnterQuote() {
     setSecretNotes(newSecretNotes);
   };
 
-  // Function to remove a secret note
   const removeSecretNote = (index) => {
     const newSecretNotes = secretNotes.filter((_, i) => i !== index);
     setSecretNotes(newSecretNotes);
   };
 
-  // Function to add a new line item
   const addLineItem = () => {
     setLineItems([...lineItems, { description: '', quantity: '', price: '' }]);
   };
 
-  // Function to handle line item changes
   const handleLineItemChange = (index, field, value) => {
     const newLineItems = lineItems.map((item, i) =>
       i === index ? { ...item, [field]: value } : item
     );
     setLineItems(newLineItems);
+    calculateTotal();
   };
 
-  // Function to remove a line item
   const removeLineItem = (index) => {
     const newLineItems = lineItems.filter((_, i) => i !== index);
     setLineItems(newLineItems);
+    calculateTotal();
   };
 
   const handleCreateQuote = (customer) => {
@@ -63,15 +76,34 @@ function EnterQuote() {
 
   const handleCloseQuoteForm = () => {
     setSelectedCustomer(null);
+    setSelectedQuote(null);
+    setCustomerEmail('');
+    setLineItems([{ description: '', quantity: '', price: '' }]);
+    setSecretNotes(['']);
+    setDiscount({ type: 'percent', value: 0 });
+    setTotal(0);
     setShowQuoteForm(false);
   };
 
-  // Function to handle form submission
+  const calculateTotal = () => {
+    const subtotal = lineItems.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0), 0);
+    const discountAmount = discount.type === 'percent' ? subtotal * (discount.value / 100) : discount.value;
+    setTotal(subtotal - discountAmount);
+  };
+
+  useEffect(() => {
+    calculateTotal();
+  }, [discount, calculateTotal]);
+
+  const applyDiscount = () => {
+    calculateTotal();
+  };
+
   const finalizeQuote = async () => {
     try {
       const quoteData = {
         customer_email: customerEmail,
-        associate_id: GlobalUserID, // Use the global user ID saved during login
+        associate_id: GlobalUserID,
         line_items: lineItems.map(item => ({
           description: item.description,
           price: parseFloat(item.price),
@@ -80,6 +112,8 @@ function EnterQuote() {
         secret_notes: secretNotes,
         customer_id: selectedCustomer.id,
         customer_address: selectedCustomer.street,
+        //discount: discount,
+        total: total,
         status: 'finalized',
         date: new Date(),
       };
@@ -88,6 +122,7 @@ function EnterQuote() {
       if (response.status === 201) {
         alert('Quote finalized successfully!');
         handleCloseQuoteForm();
+        fetchDraftQuotes();
       } else {
         alert('Failed to finalize quote.');
       }
@@ -97,15 +132,75 @@ function EnterQuote() {
     }
   };
 
+  const saveDraftQuote = async () => {
+    try {
+      const quoteData = {
+        customer_email: customerEmail,
+        associate_id: GlobalUserID,
+        line_items: lineItems.map(item => ({
+          description: item.description,
+          price: parseFloat(item.price),
+          quantity: parseFloat(item.quantity)
+        })),
+        secret_notes: secretNotes,
+        customer_id: selectedCustomer.id,
+        customer_address: selectedCustomer.street,
+        //discount: discount,
+        total: total,
+        status: 'draft',
+        date: new Date(),
+      };
+
+      if (selectedQuote) {
+        const response = await axios.put(`/api/quotes/${selectedQuote._id}`, quoteData);
+        if (response.status === 200) {
+          alert('Draft quote updated successfully!');
+          handleCloseQuoteForm();
+          fetchDraftQuotes();
+        } else {
+          alert('Failed to update draft quote.');
+        }
+      } else {
+        const response = await axios.post('/api/quotes', quoteData);
+        if (response.status === 201) {
+          alert('Draft quote saved successfully!');
+          handleCloseQuoteForm();
+          fetchDraftQuotes();
+        } else {
+          alert('Failed to save draft quote.');
+        }
+      }
+    } catch (error) {
+      console.error('Error saving/updating draft quote:', error);
+      alert('An error occurred while saving/updating the draft quote.');
+    }
+  };
+
+  const handleEditQuote = (quote) => {
+    setSelectedQuote(quote);
+    setSelectedCustomer({ id: quote.customer_id, street: quote.customer_address });
+    setCustomerEmail(quote.customer_email);
+    setLineItems(quote.line_items);
+    setSecretNotes(quote.secret_notes);
+    setTotal(quote.total);
+
+    const subtotal = quote.line_items.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0), 0);
+    const discountAmount = subtotal - quote.total;
+    const discountType = discountAmount > 0 ? 'amount' : 'percent';
+    const discountValue = discountType === 'amount' ? discountAmount : ((discountAmount / subtotal) * 100).toFixed(2);
+    setDiscount({ type: discountType, value: discountValue });
+
+    setShowQuoteForm(true);
+  };
+
   const handleSearch = async () => {
     try {
       const response = await axios.get(`/api/customers/search?name=${searchTerm}`);
-      console.log("API Response:", response.data); // Log to inspect the structure
       setResults(response.data);
     } catch (error) {
       console.error('Error fetching customer data:', error);
       alert('An error occurred while searching for customers.');
-      setResults([]); // Ensure results is set to an empty array on error
+      setResults([]);
     }
   };
 
@@ -153,12 +248,30 @@ function EnterQuote() {
           </tbody>
         </table>
       )}
-  
+
+      {draftQuotes.length > 0 && (
+        <div>
+          <h3>Draft Quotes:</h3>
+          <ul>
+            {draftQuotes.map((quote) => (
+              <li key={quote._id}>
+                {quote.customer_email}
+                <button onClick={() => handleEditQuote(quote)}>Edit</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {showQuoteForm && (
         <div className="quote-form-overlay">
           <div className="quote-form">
-            <h3>Create New Quote</h3>
+          <h3>Create New Quote for {selectedCustomer.name}</h3>
             <form onSubmit={(e) => e.preventDefault()}>
+              <div className="address-container">
+                <p>{selectedCustomer.street}<br/>
+                {selectedCustomer.city}<br/>
+                {selectedCustomer.contact}</p>
               <input
                 type="email"
                 value={customerEmail}
@@ -166,31 +279,12 @@ function EnterQuote() {
                 placeholder="Customer Email"
                 required
               />
-              <div className="address-container">
-                <input
-                  type="text"
-                  value={selectedCustomer.street}
-                  readOnly
-                  placeholder="Street"
-                />
-                <input
-                  type="text"
-                  value={selectedCustomer.city}
-                  readOnly
-                  placeholder="City"
-                />
-                <input
-                  type="text"
-                  value={selectedCustomer.contact}
-                  readOnly
-                  placeholder="Contact"
-                />
               </div>
               {lineItems.map((item, index) => (
                 <div key={index} className="line-item-form">
                   <input
                     type="text"
-                    placeholder="Description" 
+                    placeholder="Description"
                     value={item.description}
                     onChange={(e) => handleLineItemChange(index, 'description', e.target.value)}
                     required
@@ -221,12 +315,29 @@ function EnterQuote() {
                     onChange={(e) => handleSecretNoteChange(index, e.target.value)}
                     placeholder="Secret Note"
                   />
-                  <button type="button" onClick={() => removeSecretNote(
-                    index)}>
+                  <button type="button" onClick={() => removeSecretNote(index)}>
                     Remove
                   </button>
                 </div>
               ))}
+              <div>
+                <label>Discount:</label>
+                <input
+                  type="number"
+                  placeholder="Discount"
+                  value={discount.value}
+                  onChange={(e) => setDiscount({ ...discount, value: parseFloat(e.target.value) })}
+                />
+                <select value={discount.type} onChange={(e) => setDiscount({ ...discount, type: e.target.value })}>
+                  <option value="percent">Percent</option>
+                  <option value="amount">Amount</option>
+                </select>
+                <button type="button" onClick={applyDiscount}>Apply</button>
+              </div>
+              <div>
+                <label>Total:</label>
+                <span>{total.toFixed(2)}</span>
+              </div>
               <div className="action-buttons">
                 <button type="button" onClick={addSecretNote}>
                   Add Secret Note
@@ -236,6 +347,9 @@ function EnterQuote() {
                 </button>
                 <button type="button" onClick={finalizeQuote}>
                   Finalize Quote
+                </button>
+                <button type="button" onClick={saveDraftQuote}>
+                  Save Draft
                 </button>
                 <button type="button" onClick={handleCloseQuoteForm}>
                   Cancel

@@ -19,6 +19,27 @@ const searchCustomersByName = async (req, res) => {
   }
 };
 
+//  this function to calculate the total
+const calculateTotal = (lineItems, discount) => {
+  let subtotal = 0;
+  for (const item of lineItems) {
+    subtotal += item.price * item.quantity;
+  }
+  const discountAmount = discount.type === 'percentage' ? subtotal * (discount.value / 100) : discount.value;
+  return subtotal - discountAmount;
+};
+
+//  this function to fetch draft quotes
+const fetchDraftQuotes = async (req, res) => {
+  try {
+    const draftQuotes = await QuoteModel.find({ status: 'draft' });
+    res.json(draftQuotes);
+  } catch (error) {
+    console.error('Error fetching draft quotes:', error);
+    res.status(500).send('Error fetching draft quotes');
+  }
+};
+
 const createNewQuote = async (req, res) => {
   try {
       // Attempt to establish a connection if not already connected
@@ -27,6 +48,7 @@ const createNewQuote = async (req, res) => {
       }
 
       const quoteData = req.body; // Assuming the data is sent in the body of a POST request
+      quoteData.total = calculateTotal(quoteData.line_items, quoteData.discount);
       const newQuote = new QuoteModel(quoteData);
       const savedQuote = await newQuote.save();
       res.status(201).json(savedQuote);
@@ -35,4 +57,4 @@ const createNewQuote = async (req, res) => {
       res.status(500).send('Failed to create quote: ' + error.message);
   }
 };
-module.exports = { searchCustomersByName, createNewQuote };
+module.exports = { searchCustomersByName, createNewQuote, fetchDraftQuotes };
