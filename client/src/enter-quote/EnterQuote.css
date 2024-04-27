@@ -128,4 +128,6 @@
 .associate-info {
   display: flex;
   flex-direction: row; /* aligns associate login name to left side */
+  justify-content: space-between;
+  align-items: center;
 }
