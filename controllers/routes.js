@@ -4,6 +4,7 @@ const router = express.Router();
 const { searchCustomersByName, createNewQuote, fetchDraftQuotes, updateDraftQuote } = require('./EnterQuoteFunctions');
 const { getFinalizedQuotes, updateFinalizedQuote, convertToPurchaseOrder } = require('./SanctionQuoteFunctions');
 const { searchAssociates } = require('./LoginFunctions');
+const { adminSearchQuotes } = require('./MaintainRecordsFunctions');
 
 // Define routes here
 
@@ -39,5 +40,12 @@ router.put('/quotes/:id/convert-to-purchase-order', convertToPurchaseOrder);
 
 // Compare user input for username/password to all entries for sales associate account in DB
 router.get('/associates/search', searchAssociates);
+
+//                         //
+// MaintainRecords routes: //
+//                         //
+
+router.get('/admin/quotes/search', adminSearchQuotes);
+
 
 module.exports = router;
