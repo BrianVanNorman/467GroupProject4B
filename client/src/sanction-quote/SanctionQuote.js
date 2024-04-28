@@ -42,6 +42,28 @@ function SanctionQuote() {
     setShowModal(false);
   };
 
+  // Add new line item to the lineItems state
+  const addLineItem = () => {
+    setLineItems([...lineItems, { description: '', quantity: 0, price: 0 }]);
+  };
+
+  // Remove line item from the lineItems state
+  const removeLineItem = (index) => {
+    const newLineItems = lineItems.filter((_, i) => i !== index);
+    setLineItems(newLineItems);
+  };
+
+  // Add new secret note to the secretNotes state
+  const addSecretNote = () => {
+    setSecretNotes([...secretNotes, '']);
+  };
+
+  // Remove secret note from the secretNotes state
+  const removeSecretNote = (index) => {
+    const newSecretNotes = secretNotes.filter((_, i) => i !== index);
+    setSecretNotes(newSecretNotes);
+  };
+
   const handleLineItemChange = (index, field, value) => {
     const newLineItems = lineItems.map((item, i) =>
       i === index ? { ...item, [field]: value } : item
@@ -147,68 +169,74 @@ function SanctionQuote() {
       {showModal && (
         <div className="modal">
           <div className="modal-content">
-          <h3>Edit Quote</h3>
+            <h3>Edit Quote</h3>
             <p>{selectedQuote.customer_name}</p>
             <p>{selectedQuote.customer_address}</p>
             <p>{selectedQuote.customer_email}</p>
-          <form onSubmit={(e) => e.preventDefault()}>
-            {lineItems.map((item, index) => (
-              <div key={index} className="line-item-form">
-                <input
-                  type="text"
-                  placeholder="Description"
-                  value={item.description}
-                  onChange={(e) => handleLineItemChange(index, 'description', e.target.value)}
-                  required
-                />
+            <form onSubmit={(e) => e.preventDefault()}>
+              {lineItems.map((item, index) => (
+                <div key={index} className="line-item-form">
+                  <input
+                    type="text"
+                    placeholder="Description"
+                    value={item.description}
+                    onChange={(e) => handleLineItemChange(index, 'description', e.target.value)}
+                    required
+                  />
+                  <input
+                    type="number"
+                    placeholder="Quantity"
+                    value={item.quantity}
+                    onChange={(e) => handleLineItemChange(index, 'quantity', e.target.value)}
+                    required
+                  />
+                  <input
+                    type="number"
+                    placeholder="Price"
+                    value={item.price}
+                    onChange={(e) => handleLineItemChange(index, 'price', e.target.value)}
+                    required
+                  />
+                  <button type="button" onClick={() => removeLineItem(index)}>Remove</button>
+                </div>
+              ))}
+              <button type="button" onClick={addLineItem}>Add Line Item</button>
+
+              {secretNotes.map((note, index) => (
+                <div key={index} className="secret-note-form">
+                  <textarea
+                    value={note}
+                    onChange={(e) => handleSecretNoteChange(index, e.target.value)}
+                    placeholder="Secret Note"
+                  />
+                  <button type="button" onClick={() => removeSecretNote(index)}>Remove</button>
+                </div>
+              ))}
+              <button type="button" onClick={addSecretNote}>Add Secret Note</button>
+
+              <div>
+                <label>Discount:</label>
                 <input
                   type="number"
-                  placeholder="Quantity"
-                  value={item.quantity}
-                  onChange={(e) => handleLineItemChange(index, 'quantity', e.target.value)}
-                  required
+                  placeholder="Discount"
+                  value={discount.value}
+                  onChange={(e) => setDiscount({ ...discount, value: parseFloat(e.target.value) })}
                 />
-                <input
-                  type="number"
-                  placeholder="Price"
-                  value={item.price}
-                  onChange={(e) => handleLineItemChange(index, 'price', e.target.value)}
-                  required
-                />
+                <select value={discount.type} onChange={(e) => setDiscount({ ...discount, type: e.target.value })}>
+                  <option value="percent">Percent</option>
+                  <option value="amount">Amount</option>
+                </select>
               </div>
-            ))}
-            {secretNotes.map((note, index) => (
-              <div key={index} className="secret-note-form">
-                <textarea
-                  value={note}
-                  onChange={(e) => handleSecretNoteChange(index, e.target.value)}
-                  placeholder="Secret Note"
-                />
+              <div>
+                <label>Total:</label>
+                <span>{total.toFixed(2)}</span>
               </div>
-            ))}
-            <div>
-              <label>Discount:</label>
-              <input
-                type="number"
-                placeholder="Discount"
-                value={discount.value}
-                onChange={(e) => setDiscount({ ...discount, value: parseFloat(e.target.value) })}
-              />
-              <select value={discount.type} onChange={(e) => setDiscount({ ...discount, type: e.target.value })}>
-                <option value="percent">Percent</option>
-                <option value="amount">Amount</option>
-              </select>
-            </div>
-            <div>
-              <label>Total:</label>
-              <span>{total.toFixed(2)}</span>
-            </div>
-            <div className="action-buttons">
-              <button type="button" onClick={handleSaveChanges}>Save</button>
-              <button type="button" onClick={handleConvertToPurchaseOrder}>Convert to Purchase Order</button>
-              <button type="button" onClick={handleCloseModal}>Cancel</button>
-            </div>
-          </form>
+              <div className="action-buttons">
+                <button type="button" onClick={handleSaveChanges}>Save</button>
+                <button type="button" onClick={handleConvertToPurchaseOrder}>Convert to Purchase Order</button>
+                <button type="button" onClick={handleCloseModal}>Cancel</button>
+              </div>
+            </form>
           </div>
         </div>
       )}
