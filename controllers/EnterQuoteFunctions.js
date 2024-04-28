@@ -35,7 +35,8 @@ const calculateTotal = (lineItems, discount) => {
 //  this function to fetch draft quotes
 const fetchDraftQuotes = async (req, res) => {
   try {
-    const draftQuotes = await QuoteModel.find({ status: 'draft' });
+    const associateId = req.query.associateId;
+    const draftQuotes = await QuoteModel.find({ status: 'draft', associate_id: associateId });
     res.json(draftQuotes);
   } catch (error) {
     console.error('Error fetching draft quotes:', error);
@@ -43,11 +44,13 @@ const fetchDraftQuotes = async (req, res) => {
   }
 };
 
+
 const updateDraftQuote = async (req, res) => {
   try {
     const quoteId = req.params.id;
     const updatedQuoteData = req.body;
     updatedQuoteData.total = calculateTotal(updatedQuoteData.line_items, updatedQuoteData.discount);
+    updatedQuoteData.discount = updatedQuoteData.discount; // Include the discount information
 
     const updatedQuote = await QuoteModel.findByIdAndUpdate(quoteId, updatedQuoteData, { new: true });
     if (!updatedQuote) {
@@ -67,8 +70,9 @@ const createNewQuote = async (req, res) => {
       await connectDB();
     }
 
-    const quoteData = req.body; // Assuming the data is sent in the body of a POST request
+    const quoteData = req.body;
     quoteData.total = calculateTotal(quoteData.line_items, quoteData.discount);
+    quoteData.discount = quoteData.discount; // Include the discount information
     const newQuote = new QuoteModel(quoteData);
     const savedQuote = await newQuote.save();
     res.status(201).json(savedQuote);

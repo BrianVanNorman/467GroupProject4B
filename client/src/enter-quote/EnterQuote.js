@@ -21,9 +21,8 @@ function EnterQuote() {
   const [total, setTotal] = useState(0);
   const [draftQuotes, setDraftQuotes] = useState([]);
 
-  useEffect(() => {
-    fetchDraftQuotes();
-  }, []);
+
+
 
 
   const fetchDraftQuotes = async () => {
@@ -34,6 +33,9 @@ function EnterQuote() {
       console.error('Error fetching draft quotes:', error);
     }
   };
+  useEffect(() => {
+    fetchDraftQuotes();
+  }, []);
 
   const addSecretNote = () => {
     setSecretNotes([...secretNotes, '']);
@@ -100,8 +102,13 @@ function EnterQuote() {
     calculateTotal();
   }, [lineItems, discount]);
 
+  
+  const calculateSubtotal = () => {
+    return lineItems.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0), 0);
+  };
+
   const applyDiscount = () => {
-    const subtotal = lineItems.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0), 0);
+    const subtotal = calculateSubtotal();
     const discountAmount = discount.type === 'percent' ? subtotal * (discount.value / 100) : discount.value;
     setTotal(subtotal - discountAmount);
   };
@@ -120,6 +127,7 @@ function EnterQuote() {
         secret_notes: secretNotes,
         customer_id: selectedCustomer.id,
         customer_address: selectedCustomer.street,
+        discount: discount,
         total: total,
         status: 'finalized',
         date: new Date(),
@@ -162,6 +170,7 @@ function EnterQuote() {
         secret_notes: secretNotes,
         customer_id: selectedCustomer.id,
         customer_address: selectedCustomer.street,
+        discount: discount,
         total: total,
         status: 'draft',
         date: new Date(),
