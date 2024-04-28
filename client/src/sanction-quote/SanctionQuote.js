@@ -29,13 +29,7 @@ function SanctionQuote() {
     setLineItems(quote.line_items);
     setSecretNotes(quote.secret_notes);
     setTotal(quote.total);
-
-    const subtotal = quote.line_items.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0), 0);
-    const discountAmount = subtotal - quote.total;
-    const discountType = discountAmount > 0 ? 'amount' : 'percent';
-    const discountValue = discountType === 'amount' ? discountAmount : ((discountAmount / subtotal) * 100).toFixed(2);
-    setDiscount({ type: discountType, value: discountValue });
-
+    calculateTotal(quote.line_items, quote.total);
     setShowModal(true);
   };
 
@@ -53,7 +47,6 @@ function SanctionQuote() {
       i === index ? { ...item, [field]: value } : item
     );
     setLineItems(newLineItems);
-    calculateTotal();
   };
 
   const handleSecretNoteChange = (index, value) => {
@@ -63,11 +56,20 @@ function SanctionQuote() {
     setSecretNotes(newSecretNotes);
   };
 
-  const calculateTotal = () => {
-    const subtotal = lineItems.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0), 0);
+  const calculateTotal = (items, currentTotal) => {
+    const subtotal = items.reduce(
+      (sum, item) => sum + (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0),
+      0
+    );
     const discountAmount = discount.type === 'percent' ? subtotal * (discount.value / 100) : discount.value;
     setTotal(subtotal - discountAmount);
   };
+
+  useEffect(() => {
+    if (selectedQuote) {
+      calculateTotal(lineItems, total);
+    }
+  }, [lineItems, discount]);
 
   const handleConvertToPurchaseOrder = async () => {
     try {
@@ -146,6 +148,9 @@ function SanctionQuote() {
         <div className="modal">
           <div className="modal-content">
           <h3>Edit Quote</h3>
+            <p>{selectedQuote.customer_name}</p>
+            <p>{selectedQuote.customer_address}</p>
+            <p>{selectedQuote.customer_email}</p>
           <form onSubmit={(e) => e.preventDefault()}>
             {lineItems.map((item, index) => (
               <div key={index} className="line-item-form">
