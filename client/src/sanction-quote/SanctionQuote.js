@@ -88,6 +88,34 @@ function SanctionQuote() {
     }
   };
 
+  const handleSaveChanges = async () => {
+    try {
+      const updatedQuoteData = {
+        line_items: lineItems.map(item => ({
+          name: item.name,
+          description: item.description,
+          price: parseFloat(item.price),
+          quantity: parseFloat(item.quantity),
+        })),
+        total: total,
+        secret_notes: secretNotes,
+        // Add other fields you expect to update
+      };
+  
+      const response = await axios.put(`/api/quotes/${selectedQuote._id}`, updatedQuoteData);
+      if (response.status === 200) {
+        alert('Quote updated successfully!');
+        fetchFinalizedQuotes();
+        handleCloseModal();
+      } else {
+        alert('Failed to update quote.');
+      }
+    } catch (error) {
+      console.error('Error saving quote changes:', error);
+      alert('An error occurred while saving the quote changes.');
+    }
+  };
+
   return (
     <div className="sanction-quote">
       <h2>Sanction Quote</h2>
@@ -171,6 +199,7 @@ function SanctionQuote() {
               <span>{total.toFixed(2)}</span>
             </div>
             <div className="action-buttons">
+              <button type="button" onClick={handleSaveChanges}>Save</button>
               <button type="button" onClick={handleConvertToPurchaseOrder}>Convert to Purchase Order</button>
               <button type="button" onClick={handleCloseModal}>Cancel</button>
             </div>

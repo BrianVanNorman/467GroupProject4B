@@ -12,6 +12,29 @@ const getFinalizedQuotes = async (req, res) => {
   }
 };
 
+const updateFinalizedQuote = async (req, res) => {
+    try {
+      const quoteId = req.params.id;
+      const updatedData = req.body;
+  
+      const quote = await Quote.findById(quoteId);
+      if (!quote) {
+        return res.status(404).json({ error: 'Quote not found' });
+      }
+  
+      // Update the fields
+      quote.line_items = updatedData.line_items;
+      quote.total = updatedData.total;
+      quote.secret_notes = updatedData.secret_notes;
+  
+      await quote.save();
+      res.json(quote);
+    } catch (error) {
+      console.error('Error updating finalized quote:', error);
+      res.status(500).json({ error: 'Server error' });
+    }
+  };
+
 const convertToPurchaseOrder = async (req, res) => {
   try {
     const quoteId = req.params.id;
@@ -34,6 +57,7 @@ const convertToPurchaseOrder = async (req, res) => {
 };
 
 module.exports = {
-  getFinalizedQuotes,
-  convertToPurchaseOrder,
-};
+    getFinalizedQuotes,
+    convertToPurchaseOrder,
+    updateFinalizedQuote,
+  };
