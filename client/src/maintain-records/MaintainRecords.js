@@ -8,7 +8,7 @@ function MaintainRecords() {
   const [selectedAssociate, setSelectedAssociate] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [searchParams, setSearchParams] = useState({
-    customer: '',
+    customer_id: '',
     startDate: '',
     endDate: '',
     status: '',
@@ -30,7 +30,7 @@ function MaintainRecords() {
 
   const fetchQuotes = async () => {
     try {
-      const response = await axios.get('/api/quotes', { params: searchParams });
+      const response = await axios.get('/api/admin/quotes/search', { params: { search: searchParams } });
       const data = Array.isArray(response.data) ? response.data : [];
       setQuotes(data);
     } catch (error) {
@@ -120,8 +120,8 @@ function MaintainRecords() {
           <input
             type="text"
             placeholder="Customer"
-            value={searchParams.customer}
-            onChange={(e) => setSearchParams({ ...searchParams, customer: e.target.value })}
+            value={searchParams.customer_id}
+            onChange={(e) => setSearchParams({ ...searchParams, customer_id: e.target.value })}
           />
           <input
             type="date"
