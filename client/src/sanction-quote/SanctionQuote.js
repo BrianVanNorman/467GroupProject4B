@@ -7,8 +7,9 @@ function SanctionQuote() {
   const [selectedQuote, setSelectedQuote] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [lineItems, setLineItems] = useState([]);
-  const [secretNotes, setSecretNotes] = useState('');
-  const [discount, setDiscount] = useState({ type: 'percent', amount: 0 });
+  const [secretNotes, setSecretNotes] = useState([]);
+  const [discount, setDiscount] = useState({ type: 'percent', value: 0 });
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     fetchFinalizedQuotes();
@@ -17,41 +18,74 @@ function SanctionQuote() {
   const fetchFinalizedQuotes = async () => {
     try {
       const response = await axios.get('/api/quotes/finalized');
-      const data = Array.isArray(response.data) ? response.data : [];
-      setFinalizedQuotes(data);
+      setFinalizedQuotes(response.data);
     } catch (error) {
       console.error('Error fetching finalized quotes:', error);
     }
   };
 
-  const handleSanctionQuote = async () => {
-    try {
-      await axios.put(`/api/quotes/${selectedQuote._id}/sanction`, {
-        lineItems,
-        secretNotes,
-        discount,
-      });
-      setShowModal(false);
-      fetchFinalizedQuotes();
-      alert('Quote sanctioned and email sent successfully!');
-    } catch (error) {
-      console.error('Error sanctioning quote:', error);
-    }
+  const handleEditQuote = (quote) => {
+    setSelectedQuote(quote);
+    setLineItems(quote.line_items);
+    setSecretNotes(quote.secret_notes);
+    setTotal(quote.total);
+
+    const subtotal = quote.line_items.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0), 0);
+    const discountAmount = subtotal - quote.total;
+    const discountType = discountAmount > 0 ? 'amount' : 'percent';
+    const discountValue = discountType === 'amount' ? discountAmount : ((discountAmount / subtotal) * 100).toFixed(2);
+    setDiscount({ type: discountType, value: discountValue });
+
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedQuote(null);
+    setLineItems([]);
+    setSecretNotes([]);
+    setDiscount({ type: 'percent', value: 0 });
+    setTotal(0);
+    setShowModal(false);
   };
 
   const handleLineItemChange = (index, field, value) => {
-    const updatedLineItems = [...lineItems];
-    updatedLineItems[index][field] = value;
-    setLineItems(updatedLineItems);
+    const newLineItems = lineItems.map((item, i) =>
+      i === index ? { ...item, [field]: value } : item
+    );
+    setLineItems(newLineItems);
+    calculateTotal();
   };
 
-  const addLineItem = () => {
-    setLineItems([...lineItems, { name: '', description: '', amount: '' }]);
+  const handleSecretNoteChange = (index, value) => {
+    const newSecretNotes = secretNotes.map((note, i) =>
+      i === index ? value : note
+    );
+    setSecretNotes(newSecretNotes);
   };
 
-  const removeLineItem = (index) => {
-    const updatedLineItems = lineItems.filter((_, i) => i !== index);
-    setLineItems(updatedLineItems);
+  const calculateTotal = () => {
+    const subtotal = lineItems.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0), 0);
+    const discountAmount = discount.type === 'percent' ? subtotal * (discount.value / 100) : discount.value;
+    setTotal(subtotal - discountAmount);
+  };
+
+  const handleConvertToPurchaseOrder = async () => {
+    try {
+      const updatedQuote = {
+        ...selectedQuote,
+        line_items: lineItems,
+        secret_notes: secretNotes,
+        total: total,
+      };
+
+      await axios.put(`/api/quotes/${selectedQuote._id}/convert-to-purchase-order`, updatedQuote);
+      alert('Quote converted to purchase order successfully!');
+      handleCloseModal();
+      fetchFinalizedQuotes();
+    } catch (error) {
+      console.error('Error converting quote to purchase order:', error);
+      alert('An error occurred while converting the quote to a purchase order.');
+    }
   };
 
   return (
@@ -67,84 +101,80 @@ function SanctionQuote() {
           </tr>
         </thead>
         <tbody>
-          {finalizedQuotes.length > 0 ? (
-            finalizedQuotes.map((quote) => (
-              <tr key={quote._id}>
-                <td>{quote._id}</td>
-                <td>{quote.customer_email}</td>
-                <td>{quote.amount}</td>
-                <td>
-                  <button onClick={() => {
-                    setSelectedQuote(quote);
-                    setLineItems(quote.line_items);
-                    setSecretNotes(quote.secret_notes);
-                    setShowModal(true);
-                  }}>
-                    Sanction Quote
-                  </button>
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="4">No finalized quotes found</td>
+          {finalizedQuotes.map((quote) => (
+            <tr key={quote._id}>
+              <td>{quote._id}</td>
+              <td>{quote.customer_email}</td>
+              <td>{quote.total}</td>
+              <td>
+                <button onClick={() => handleEditQuote(quote)}>Edit</button>
+              </td>
             </tr>
-            )}
+          ))}
         </tbody>
       </table>
 
       {showModal && (
         <div className="modal">
           <div className="modal-content">
-            <h3>Sanction Quote</h3>
-            <div className="line-items">
-              {lineItems.map((item, index) => (
-                <div key={index} className="line-item">
-                  <input
-                    type="text"
-                    placeholder="Item Name"
-                    value={item.name}
-                    onChange={(e) => handleLineItemChange(index, 'name', e.target.value)}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Item Description"
-                    value={item.description}
-                    onChange={(e) => handleLineItemChange(index, 'description', e.target.value)}
-                  />
-                  <input
-                    type="number"
-                    placeholder="Item Amount"
-                    value={item.amount}
-                    onChange={(e) => handleLineItemChange(index, 'amount', e.target.value)}
-                  />
-                  <button onClick={() => removeLineItem(index)}>Remove</button>
-                </div>
-              ))}
-              <button onClick={addLineItem}>Add Line Item</button>
-            </div>
-            <textarea
-              placeholder="Secret Notes"
-              value={secretNotes}
-              onChange={(e) => setSecretNotes(e.target.value)}
-            />
-            <div className="discount">
-              <select
-                value={discount.type}
-                onChange={(e) => setDiscount({ ...discount, type: e.target.value })}
-              >
-                <option value="percent">Percent</option>
-                <option value="amount">Amount</option>
-              </select>
+          <h3>Edit Quote</h3>
+          <form onSubmit={(e) => e.preventDefault()}>
+            {lineItems.map((item, index) => (
+              <div key={index} className="line-item-form">
+                <input
+                  type="text"
+                  placeholder="Description"
+                  value={item.description}
+                  onChange={(e) => handleLineItemChange(index, 'description', e.target.value)}
+                  required
+                />
+                <input
+                  type="number"
+                  placeholder="Quantity"
+                  value={item.quantity}
+                  onChange={(e) => handleLineItemChange(index, 'quantity', e.target.value)}
+                  required
+                />
+                <input
+                  type="number"
+                  placeholder="Price"
+                  value={item.price}
+                  onChange={(e) => handleLineItemChange(index, 'price', e.target.value)}
+                  required
+                />
+              </div>
+            ))}
+            {secretNotes.map((note, index) => (
+              <div key={index} className="secret-note-form">
+                <textarea
+                  value={note}
+                  onChange={(e) => handleSecretNoteChange(index, e.target.value)}
+                  placeholder="Secret Note"
+                />
+              </div>
+            ))}
+            <div>
+              <label>Discount:</label>
               <input
                 type="number"
                 placeholder="Discount"
-                value={discount.amount}
-                onChange={(e) => setDiscount({ ...discount, amount: e.target.value })}
+                value={discount.value}
+                onChange={(e) => setDiscount({ ...discount, value: parseFloat(e.target.value) })}
               />
+              <select value={discount.type} onChange={(e) => setDiscount({ ...discount, type: e.target.value })}>
+                <option value="percent">Percent</option>
+                <option value="amount">Amount</option>
+              </select>
             </div>
-            <button onClick={handleSanctionQuote}>Sanction Quote</button>
-            <button onClick={() => setShowModal(false)}>Cancel</button>
+            <div>
+              <label>Total:</label>
+              <span>{total.toFixed(2)}</span>
+            </div>
+            <div className="action-buttons">
+              <button type="button" onClick={handleConvertToPurchaseOrder}>Convert to Purchase Order</button>
+              <button type="button" onClick={handleCloseModal}>Cancel</button>
+            </div>
+          </form>
           </div>
         </div>
       )}

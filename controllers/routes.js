@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { searchCustomersByName, createNewQuote, fetchDraftQuotes } = require('./EnterQuoteFunctions');
+const { getFinalizedQuotes, convertToPurchaseOrder } = require('./SanctionQuoteFunctions');
 const { searchAssociates } = require('./LoginFunctions');
-
-
 
 // Define routes here
 
@@ -18,6 +17,16 @@ router.get('/customers/search', searchCustomersByName);
 
 // Posting Quote data to Quote Collection in Mongo DB
 router.post('/quotes', createNewQuote);
+
+//                       //
+// SanctionQuote routes: //
+//                       //
+
+// Get finalized quotes
+router.get('/quotes/finalized', getFinalizedQuotes);
+
+// Convert quote to purchase order
+router.put('/quotes/:id/convert-to-purchase-order', convertToPurchaseOrder);
 
 //               //
 // Login routes: //
