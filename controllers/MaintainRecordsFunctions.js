@@ -9,7 +9,7 @@ const adminSearchQuotes = async (req, res) => {
         await connectDB();
 
         // Variables for search parameters
-        const customer = req.query.search.customer;
+        const customer = req.query.search.customer_id;
         const start_date = req.query.search.startDate;
         const end_date = req.query.search.endDate;
         const searchStatus = req.query.search.status;
@@ -47,4 +47,17 @@ const adminSearchQuotes = async (req, res) => {
     }
 };
 
-module.exports = { adminSearchQuotes };
+const listAssociates = async (req, res) => {
+    try {
+        // Ensure the database is connected
+        await connectDB();
+
+        const associates = await SalesAssociateModel.find();
+        res.json(associates);
+    } catch (error) {
+        console.error('Error listing associates:', error);
+        res.status(500).send('Error in listing associates');
+    }
+};
+
+module.exports = { adminSearchQuotes,  listAssociates };
