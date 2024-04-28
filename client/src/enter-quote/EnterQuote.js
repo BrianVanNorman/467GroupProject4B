@@ -206,7 +206,12 @@ function EnterQuote() {
 
   return (
     <div className="enter-quote">
-      <h3 className="associate-info">Logged in as: {GlobalUsername}</h3>
+      <div className="associate-info">
+      <h3>Logged in as: {GlobalUsername}</h3>
+      <form action="/login">
+        <input type="submit" value="Logout" />
+      </form>
+      </div>
       <h2>Enter Sales Quote</h2>
       <div className="form-group">
         <input
@@ -266,7 +271,8 @@ function EnterQuote() {
       {showQuoteForm && (
         <div className="quote-form-overlay">
           <div className="quote-form">
-          <h3>Create New Quote for {selectedCustomer.name}</h3>
+
+            <h3>Create New Quote for {selectedCustomer.name}</h3>
             <form onSubmit={(e) => e.preventDefault()}>
               <div className="address-container">
                 <p>{selectedCustomer.street}<br/>
