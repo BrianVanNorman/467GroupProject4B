@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { searchCustomersByName, createNewQuote, fetchDraftQuotes, updateDraftQuote } = require('./EnterQuoteFunctions');
+const { searchCustomersByName, getCustomerById, createNewQuote, fetchDraftQuotes, updateDraftQuote, deleteDraftQuote } = require('./EnterQuoteFunctions');
 const { getFinalizedQuotes, convertToPurchaseOrder } = require('./SanctionQuoteFunctions');
 const { searchAssociates } = require('./LoginFunctions');
 const { adminSearchQuotes } = require('./MaintainRecordsFunctions');
@@ -12,11 +12,13 @@ const { adminSearchQuotes } = require('./MaintainRecordsFunctions');
 // EnterQuote routes: //
 //                    //
 
+router.get('/customers/search', searchCustomersByName);
 router.put('/quotes/:id', updateDraftQuote);
 router.get('/quotes/draft', fetchDraftQuotes);
+router.get('/customers/:id', getCustomerById);
+router.delete('/quotes/:id', deleteDraftQuote);
 
-// Search through Legacy DB
-router.get('/customers/search', searchCustomersByName);
+
 
 // Posting Quote data to Quote Collection in Mongo DB
 router.post('/quotes', createNewQuote);

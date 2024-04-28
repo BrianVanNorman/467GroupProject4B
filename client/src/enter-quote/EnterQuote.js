@@ -207,22 +207,54 @@ function EnterQuote() {
     }
   };
 
-  const handleEditQuote = (quote) => {
-    setSelectedQuote(quote);
-    setSelectedCustomer({ id: quote.customer_id, street: quote.customer_address });
-    setCustomerEmail(quote.customer_email);
-    setLineItems(quote.line_items);
-    setSecretNotes(quote.secret_notes);
-    setTotal(quote.total);
+
+  const handleEditQuote = async (quote) => {
+    try {
+      const response = await axios.get(`/api/customers/${quote.customer_id}`);
+      const customer = response.data;
   
-    const subtotal = quote.line_items.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0), 0);
-    const discountAmount = subtotal - quote.total;
-    const discountType = discountAmount > 0 ? 'amount' : 'percent';
-    const discountValue = discountType === 'amount' ? discountAmount : ((discountAmount / subtotal) * 100).toFixed(2);
-    setDiscount({ type: discountType, value: discountValue });
+      setSelectedQuote(quote);
+      setSelectedCustomer(customer);
+      setCustomerEmail(quote.customer_email);
+      setLineItems(quote.line_items);
+      setSecretNotes(quote.secret_notes);
+      setTotal(quote.total);
   
-    setShowQuoteForm(true);
+      const subtotal = quote.line_items.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0), 0);
+      const discountAmount = subtotal - quote.total;
+      const discountType = discountAmount > 0 ? 'amount' : 'percent';
+      const discountValue = discountType === 'amount' ? discountAmount : ((discountAmount / subtotal) * 100).toFixed(2);
+      setDiscount({ type: discountType, value: discountValue });
+  
+      setShowQuoteForm(true);
+    } catch (error) {
+      console.error('Error fetching customer data:', error);
+      alert('An error occurred while fetching customer data.');
+    }
   };
+
+  const handleDeleteDraft = async () => {
+    if (window.confirm('Are you sure you want to delete this draft quote?')) {
+      try {
+        if (selectedQuote) {
+          console.log("Attempting to delete quote with ID:", selectedQuote._id); // Log the ID
+          const response = await axios.delete(`/api/quotes/${selectedQuote._id}`);
+          if (response.status === 200) {
+            alert('Draft quote deleted successfully!');
+            handleCloseQuoteForm();
+            fetchDraftQuotes();
+          } else {
+            alert('Failed to delete draft quote.');
+            console.error("Delete request failed with status:", response.status); // Log the error
+          }
+        }
+      } catch (error) {
+        console.error('Error deleting draft quote:', error);
+        alert('An error occurred while deleting the draft quote.');
+      }
+    }
+  };
+
 
   const handleSearch = async () => {
     try {
@@ -302,7 +334,6 @@ function EnterQuote() {
       {showQuoteForm && (
         <div className="quote-form-overlay">
           <div className="quote-form">
-
             <h3>Create New Quote for {selectedCustomer.name}</h3>
             <form onSubmit={(e) => e.preventDefault()}>
               <div className="address-container">
@@ -390,6 +421,9 @@ function EnterQuote() {
                 </button>
                 <button type="button" onClick={handleCloseQuoteForm}>
                   Cancel
+                </button>
+                <button type="button" onClick={handleDeleteDraft}>
+                  Delete Draft
                 </button>
               </div>
             </form>

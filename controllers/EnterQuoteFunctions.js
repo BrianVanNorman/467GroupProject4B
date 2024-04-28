@@ -19,6 +19,7 @@ const searchCustomersByName = async (req, res) => {
   }
 };
 
+
 //  this function to calculate the total
 const calculateTotal = (lineItems, discount) => {
   let subtotal = 0;
@@ -81,4 +82,46 @@ const createNewQuote = async (req, res) => {
     res.status(500).send('Failed to create quote: ' + error.message);
   }
 };
-module.exports = { searchCustomersByName, createNewQuote, fetchDraftQuotes, updateDraftQuote };
+
+
+const deleteDraftQuote = async (req, res) => {
+  try {
+    const quoteId = req.params.id;
+    const deletedQuote = await QuoteModel.findByIdAndDelete(quoteId);
+    if (!deletedQuote) {
+      return res.status(404).send('Draft quote not found');
+    }
+    res.sendStatus(200);
+  } catch (error) {
+    console.error('Error deleting draft quote:', error);
+    res.status(500).send('Error deleting draft quote');
+  }
+};
+
+const getCustomerById = async (req, res) => {
+  const customerId = req.params.id;
+  try {
+    const conn = await connectLegacyDB();
+    const [rows] = await conn.execute(
+      'SELECT id, name, city, street, contact FROM customers WHERE id = ?',
+      [customerId]
+    );
+    if (rows.length === 0) {
+      res.status(404).send('Customer not found');
+    } else {
+      res.json(rows[0]);
+    }
+  } catch (error) {
+    console.error('Error fetching customer:', error);
+    res.status(500).send('Error fetching customer');
+  }
+};
+
+module.exports = {
+  searchCustomersByName,
+  createNewQuote,
+  fetchDraftQuotes,
+  updateDraftQuote,
+  getCustomerById,
+  deleteDraftQuote,
+};
