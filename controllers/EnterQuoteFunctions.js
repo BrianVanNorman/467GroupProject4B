@@ -25,8 +25,11 @@ const calculateTotal = (lineItems, discount) => {
   for (const item of lineItems) {
     subtotal += item.price * item.quantity;
   }
-  const discountAmount = discount.type === 'percentage' ? subtotal * (discount.value / 100) : discount.value;
-  return subtotal - discountAmount;
+  if (discount && discount.type) {
+    const discountAmount = discount.type === 'percent' ? subtotal * (discount.value / 100) : discount.value;
+    return subtotal - discountAmount;
+  }
+  return subtotal;
 };
 
 //  this function to fetch draft quotes

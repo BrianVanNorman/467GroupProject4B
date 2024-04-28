@@ -60,9 +60,7 @@ function EnterQuote() {
       i === index ? { ...item, [field]: value } : item
     );
     setLineItems(newLineItems);
-    calculateTotal();
   };
-
   const removeLineItem = (index) => {
     const newLineItems = lineItems.filter((_, i) => i !== index);
     setLineItems(newLineItems);
@@ -87,16 +85,25 @@ function EnterQuote() {
 
   const calculateTotal = () => {
     const subtotal = lineItems.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0), 0);
-    const discountAmount = discount.type === 'percent' ? subtotal * (discount.value / 100) : discount.value;
-    setTotal(subtotal - discountAmount);
+    if (discount && discount.type) {
+      const discountAmount = discount.type === 'percent' ? subtotal * (discount.value / 100) : discount.value;
+      setTotal(subtotal - discountAmount);
+    } else {
+      setTotal(subtotal);
+    }
   };
 
   useEffect(() => {
     calculateTotal();
   }, [discount, calculateTotal]);
+  useEffect(() => {
+    calculateTotal();
+  }, [lineItems, discount]);
 
   const applyDiscount = () => {
-    calculateTotal();
+    const subtotal = lineItems.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0), 0);
+    const discountAmount = discount.type === 'percent' ? subtotal * (discount.value / 100) : discount.value;
+    setTotal(subtotal - discountAmount);
   };
 
   const finalizeQuote = async () => {
@@ -183,13 +190,13 @@ function EnterQuote() {
     setLineItems(quote.line_items);
     setSecretNotes(quote.secret_notes);
     setTotal(quote.total);
-
+  
     const subtotal = quote.line_items.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0), 0);
     const discountAmount = subtotal - quote.total;
     const discountType = discountAmount > 0 ? 'amount' : 'percent';
     const discountValue = discountType === 'amount' ? discountAmount : ((discountAmount / subtotal) * 100).toFixed(2);
     setDiscount({ type: discountType, value: discountValue });
-
+  
     setShowQuoteForm(true);
   };
 
