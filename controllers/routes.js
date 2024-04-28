@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
+
 const { searchCustomersByName, getCustomerById, createNewQuote, fetchDraftQuotes, updateDraftQuote, deleteDraftQuote } = require('./EnterQuoteFunctions');
-const { getFinalizedQuotes, convertToPurchaseOrder } = require('./SanctionQuoteFunctions');
+const { getFinalizedQuotes, updateFinalizedQuote, convertToPurchaseOrder } = require('./SanctionQuoteFunctions');
 const { searchAssociates } = require('./LoginFunctions');
 const { adminSearchQuotes } = require('./MaintainRecordsFunctions');
 
@@ -29,6 +30,9 @@ router.post('/quotes', createNewQuote);
 
 // Get finalized quotes
 router.get('/quotes/finalized', getFinalizedQuotes);
+
+// Update a finalized quote
+router.put('/quotes/:id', updateFinalizedQuote);
 
 // Convert quote to purchase order
 router.put('/quotes/:id/convert-to-purchase-order', convertToPurchaseOrder);
