@@ -125,13 +125,9 @@
   margin-bottom: 10px;
 }
 
-.address-container input {
-  margin-bottom: 5px;
-  background: none; /* Remove the background */
-  border: none; /* Remove the border */
-}
-
 .associate-info {
   display: flex;
   flex-direction: row; /* aligns associate login name to left side */
+  justify-content: space-between;
+  align-items: center;
 }
