@@ -119,7 +119,7 @@ function MaintainRecords() {
         <div className="search-params">
           <input
             type="text"
-            placeholder="Customer"
+            placeholder="Customer ID"
             value={searchParams.customer_id}
             onChange={(e) => setSearchParams({ ...searchParams, customer_id: e.target.value })}
           />
@@ -162,7 +162,7 @@ function MaintainRecords() {
                 <tr key={quote._id}>
                   <td>{quote._id}</td>
                   <td>{quote.customer_email}</td>
-                  <td>{quote.amount}</td>
+                  <td>{quote.total}</td>
                   <td>{quote.status}</td>
                 </tr>
               ))

@@ -42,8 +42,10 @@ async function insertNewQuote() {
         return;
     }
 
+    // Variables to store formatted date for initial quote data
     const date = new Date();
     const formatDate = date.toISOString().split('T')[0].replace(/-/g, ' ');
+    console.log(formatDate);
 
     const newQuote = new QuoteModel({
         date: formatDate,
