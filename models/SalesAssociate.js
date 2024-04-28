@@ -8,16 +8,16 @@ const SalesAssociateSchema = new Schema({
     },
     password: {
         type: String,
-        required: true,
-    },
-    commission: {
-        type: Number,
-        default: 0,
+        required: true
     },
     address: {
         type: String,
-        required: true,
+        required: true
     },
+    commission: {
+        type: Number,
+        default: 0.00
+    }
 });
 
 const SalesAssociateModel = mongoose.model('SalesAssociate', SalesAssociateSchema);

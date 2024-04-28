@@ -11,7 +11,7 @@ const legacyDBConfig = {
 const connectLegacyDB = async () => {
   try {
     const connection = await mysql.createConnection(legacyDBConfig);
-    console.log('Legacy Database (MariaDB) connected...');
+    console.log('Connected. Was able to use Legacy Database...');
     return connection;
   } catch (err) {
     console.error('Failed to connect to Legacy Database:', err.message);
