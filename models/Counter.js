@@ -2,18 +2,19 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const counterSchema = new Schema({
-    _id: String,  // the name of the model
-    seq: { type: Number, default: 0 }  // last value used
-  });
+    _id: String,  // Identifier for the counter
+    seq: { type: Number, default: 0 }  // Current sequence number
+});
 
-  function getNextSequence(name) {
-    return Counter.findOneAndUpdate(
-      { _id: name },
-      { $inc: { seq: 1 } },
-      { new: true, upsert: true }
-    ).exec();
-  }
-  
-  
-  const Counter = mongoose.model('Counter', counterSchema);
-  module.exports = Counter;
+const getNextSequence = async (name) => {
+    const result = await Counter.findOneAndUpdate(
+        { _id: name },
+        { $inc: { seq: 1 } },
+        { new: true, upsert: true }
+    );
+    console.log("Next sequence for ", name, ": ", result.seq);
+    return result;
+};
+
+const Counter = mongoose.model('Counter', counterSchema);
+module.exports = { Counter, getNextSequence };
