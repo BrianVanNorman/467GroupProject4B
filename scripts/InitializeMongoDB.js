@@ -42,8 +42,11 @@ async function insertNewQuote() {
         return;
     }
 
+    const date = new Date();
+    const formatDate = date.toISOString().split('T')[0].replace(/-/g, ' ');
+
     const newQuote = new QuoteModel({
-        date: new Date(),
+        date: formatDate,
         associate_id: associate._id,
         customer_id: 123,
         customer_email: 'jkurbis@yahoo.com',

@@ -111,7 +111,7 @@ function EnterQuote() {
     try {
       // Variables for storing formatted date
       const date = new Date();
-      var formatDate = date.toISOString().split('T')[0].replace(/-/g, ' ');
+      const formatDate = date.toISOString().split('T')[0].replace(/-/g, ' ');
       const quoteData = {
         customer_email: customerEmail,
         associate_id: GlobalUserID,
@@ -156,7 +156,7 @@ function EnterQuote() {
     try {
       // Variables for storing formatted date
       const date = new Date();
-      var formatDate = date.toISOString().split('T')[0].replace(/-/g, ' ');
+      const formatDate = date.toISOString().split('T')[0].replace(/-/g, ' ');
       const quoteData = {
         customer_email: customerEmail,
         associate_id: GlobalUserID,
@@ -170,7 +170,7 @@ function EnterQuote() {
         customer_address: selectedCustomer.street,
         total: total,
         status: 'draft',
-        date: date,
+        date: formatDate,
       };
   
       if (selectedQuote) {
