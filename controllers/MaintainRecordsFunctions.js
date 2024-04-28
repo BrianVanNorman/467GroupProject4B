@@ -9,15 +9,15 @@ const adminSearchQuotes = async (req, res) => {
         await connectDB();
 
         // Variables for search parameters
-        const customerid = req.query.search.customer_id;
+        const customer = req.query.search.customer;
         const start_date = req.query.search.startDate;
         const end_date = req.query.search.endDate;
         const searchStatus = req.query.search.status;
 
         // Only query if specified params are not empty
         let query = {};
-        if (customerid) {
-            query.customer_id = customerid;
+        if (customer) {
+            query.customer_id = customer;
         }
         if (start_date && end_date) {
             query.date = {$gte:start_date,$lt:end_date};

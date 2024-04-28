@@ -8,7 +8,7 @@ function MaintainRecords() {
   const [selectedAssociate, setSelectedAssociate] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [searchParams, setSearchParams] = useState({
-    customer_id: '',
+    customer: '',
     startDate: '',
     endDate: '',
     status: '',
@@ -29,6 +29,16 @@ function MaintainRecords() {
   };
 
   const fetchQuotes = async () => {
+    // First process customer name and save customer id from result
+    try {
+      const response = await axios.get(`/api/customers/search?name=${searchParams.customer}`);
+      setSearchParams({ ...searchParams, customer: response.id });
+    } catch (error) {
+      console.error('Error fetching customer data:', error);
+      alert('An error occurred while searching for customers.');
+      setSearchParams({ ...searchParams, customer: '' });
+    }
+    // Now find all quotes
     try {
       const response = await axios.get('/api/admin/quotes/search', { params: { search: searchParams } });
       const data = Array.isArray(response.data) ? response.data : [];
@@ -119,9 +129,9 @@ function MaintainRecords() {
         <div className="search-params">
           <input
             type="text"
-            placeholder="Customer ID"
-            value={searchParams.customer_id}
-            onChange={(e) => setSearchParams({ ...searchParams, customer_id: e.target.value })}
+            placeholder="Customer"
+            value={searchParams.customer}
+            onChange={(e) => setSearchParams({ ...searchParams, customer: e.target.value })}
           />
           <input
             type="date"
