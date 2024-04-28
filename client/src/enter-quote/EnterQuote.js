@@ -105,6 +105,7 @@ function EnterQuote() {
     const discountAmount = discount.type === 'percent' ? subtotal * (discount.value / 100) : discount.value;
     setTotal(subtotal - discountAmount);
   };
+  
 
   const finalizeQuote = async () => {
     try {
@@ -119,26 +120,35 @@ function EnterQuote() {
         secret_notes: secretNotes,
         customer_id: selectedCustomer.id,
         customer_address: selectedCustomer.street,
-        //discount: discount,
         total: total,
         status: 'finalized',
         date: new Date(),
       };
-
-      const response = await axios.post('/api/quotes', quoteData);
-      if (response.status === 201) {
-        alert('Quote finalized successfully!');
-        handleCloseQuoteForm();
-        fetchDraftQuotes();
+  
+      if (selectedQuote) {
+        const response = await axios.put(`/api/quotes/${selectedQuote._id}`, quoteData);
+        if (response.status === 200) {
+          alert('Quote finalized successfully!');
+          handleCloseQuoteForm();
+          fetchDraftQuotes();
+        } else {
+          alert('Failed to finalize quote.');
+        }
       } else {
-        alert('Failed to finalize quote.');
+        const response = await axios.post('/api/quotes', quoteData);
+        if (response.status === 201) {
+          alert('Quote finalized successfully!');
+          handleCloseQuoteForm();
+          fetchDraftQuotes();
+        } else {
+          alert('Failed to finalize quote.');
+        }
       }
     } catch (error) {
       console.error('Error finalizing quote:', error);
       alert('An error occurred while finalizing the quote.');
     }
   };
-
   const saveDraftQuote = async () => {
     try {
       const quoteData = {
@@ -152,12 +162,11 @@ function EnterQuote() {
         secret_notes: secretNotes,
         customer_id: selectedCustomer.id,
         customer_address: selectedCustomer.street,
-        //discount: discount,
         total: total,
         status: 'draft',
         date: new Date(),
       };
-
+  
       if (selectedQuote) {
         const response = await axios.put(`/api/quotes/${selectedQuote._id}`, quoteData);
         if (response.status === 200) {

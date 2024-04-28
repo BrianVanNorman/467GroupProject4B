@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { searchCustomersByName, createNewQuote, fetchDraftQuotes } = require('./EnterQuoteFunctions');
+const { searchCustomersByName, createNewQuote, fetchDraftQuotes, updateDraftQuote } = require('./EnterQuoteFunctions');
 const { searchAssociates } = require('./LoginFunctions');
 
 
@@ -11,6 +11,7 @@ const { searchAssociates } = require('./LoginFunctions');
 // EnterQuote routes: //
 //                    //
 
+router.put('/quotes/:id', updateDraftQuote);
 router.get('/quotes/draft', fetchDraftQuotes);
 
 // Search through Legacy DB

@@ -43,21 +43,38 @@ const fetchDraftQuotes = async (req, res) => {
   }
 };
 
-const createNewQuote = async (req, res) => {
+const updateDraftQuote = async (req, res) => {
   try {
-      // Attempt to establish a connection if not already connected
-      if (mongoose.connection.readyState !== 1) {
-          await connectDB();
-      }
+    const quoteId = req.params.id;
+    const updatedQuoteData = req.body;
+    updatedQuoteData.total = calculateTotal(updatedQuoteData.line_items, updatedQuoteData.discount);
 
-      const quoteData = req.body; // Assuming the data is sent in the body of a POST request
-      quoteData.total = calculateTotal(quoteData.line_items, quoteData.discount);
-      const newQuote = new QuoteModel(quoteData);
-      const savedQuote = await newQuote.save();
-      res.status(201).json(savedQuote);
+    const updatedQuote = await QuoteModel.findByIdAndUpdate(quoteId, updatedQuoteData, { new: true });
+    if (!updatedQuote) {
+      return res.status(404).send('Draft quote not found');
+    }
+    res.json(updatedQuote);
   } catch (error) {
-      console.error('Failed to create quote:', error);
-      res.status(500).send('Failed to create quote: ' + error.message);
+    console.error('Error updating draft quote:', error);
+    res.status(500).send('Error updating draft quote');
   }
 };
-module.exports = { searchCustomersByName, createNewQuote, fetchDraftQuotes };
+
+const createNewQuote = async (req, res) => {
+  try {
+    // Attempt to establish a connection if not already connected
+    if (mongoose.connection.readyState !== 1) {
+      await connectDB();
+    }
+
+    const quoteData = req.body; // Assuming the data is sent in the body of a POST request
+    quoteData.total = calculateTotal(quoteData.line_items, quoteData.discount);
+    const newQuote = new QuoteModel(quoteData);
+    const savedQuote = await newQuote.save();
+    res.status(201).json(savedQuote);
+  } catch (error) {
+    console.error('Failed to create quote:', error);
+    res.status(500).send('Failed to create quote: ' + error.message);
+  }
+};
+module.exports = { searchCustomersByName, createNewQuote, fetchDraftQuotes, updateDraftQuote };
