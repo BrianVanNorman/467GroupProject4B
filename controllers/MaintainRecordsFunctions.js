@@ -1,3 +1,4 @@
+const connectLegacyDB = require('../legacyDB');
 const QuoteModel = require('../models/Quote');
 const SalesAssociateModel = require('../models/SalesAssociate');
 const connectDB = require('../db');
@@ -9,10 +10,32 @@ const adminSearchQuotes = async (req, res) => {
         await connectDB();
 
         // Variables for search parameters
-        const customer = req.query.search.customer_id;
+        var customer = req.query.search.customer;
         const start_date = req.query.search.startDate;
         const end_date = req.query.search.endDate;
         const searchStatus = req.query.search.status;
+
+        // Find customer id for given customer name (only if it was actually supplied)
+        if (customer) {
+            const searchTerm = req.query.search.customer;
+            try {
+                const conn = await connectLegacyDB();
+                const [rows] = await conn.execute(
+                'SELECT id, name, city, street, contact FROM customers WHERE name LIKE ?',
+                [`%${searchTerm}%`]
+                );
+                if(rows.data === 1) {
+                    // Corresponding ID for customer name found
+                    customer = rows.data[0].id;
+                }
+                else {
+                    // Change customer id to -1 to indicate no corresponding customer in legacy DB
+                    customer = -1;
+                }
+            } catch (error) {
+                console.error('Error searching customers:', error);
+            }
+        }
 
         // Only query if specified params are not empty
         let query = {};

@@ -8,12 +8,11 @@ function MaintainRecords() {
   const [selectedAssociate, setSelectedAssociate] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [searchParams, setSearchParams] = useState({
-    customer_id: '',
+    customer: '',
     startDate: '',
     endDate: '',
     status: '',
   });
-  const [customerName, setCustomerName] = useState('');   // Store customer name to convert to id for searchParams
 
   useEffect(() => {
     fetchAssociates();
@@ -30,26 +29,6 @@ function MaintainRecords() {
   };
 
   const fetchQuotes = async () => {
-    // First process customer name and save customer id from result (if name was specified)
-    if (customerName) {
-      try {
-        console.log("Name from user input: ", customerName);
-        const response = await axios.get(`/api/customers/search?name=${customerName}`);
-        // Store id if found, else store random character so that no quotes are printed
-        if (response.data.length === 1) {
-          setSearchParams({ ...searchParams, customer_id: response.data[0].id });
-        }
-        else {
-          // Store -1 as customer_id to indicate that customer doesn't exist in legacy DB
-          setSearchParams({ ...searchParams, customer_id: '-1' });
-        }
-      } catch (error) {
-        console.error('Error fetching customer data:', error);
-        alert('An error occurred while searching for customers.');
-        setSearchParams({ ...searchParams, customer_id: '' });
-      }
-    }
-    // Now find all quotes
     try {
       const response = await axios.get('/api/admin/quotes/search', { params: { search: searchParams } });
       const data = Array.isArray(response.data) ? response.data : [];
@@ -141,8 +120,8 @@ function MaintainRecords() {
           <input
             type="text"
             placeholder="Customer"
-            value={customerName}
-            onChange={(e) => setCustomerName(e.target.value)}
+            value={searchParams.customer}
+            onChange={(e) => setSearchParams({ ...searchParams, customer: e.target.value })}
           />
           <input
             type="date"
