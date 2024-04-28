@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const connectDB = require('../db');
 const SalesAssociateModel = require('../models/SalesAssociate');
-const ItemModel = require('../models/Item');
+//const ItemModel = require('../models/Item');
 const QuoteModel = require('../models/Quote');
 const Counter = require('../models/Counter');
 
@@ -51,7 +51,7 @@ async function insertNewQuote() {
         commission: 150,
         status: 'draft',
     });
-
+    
     await newQuote.save();
     console.log('New quote inserted successfully.');
 }
