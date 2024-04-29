@@ -147,8 +147,8 @@ function SanctionQuote() {
         </thead>
         <tbody>
           {finalizedQuotes.map((quote) => (
-            <tr key={quote._id}>
-              <td>{quote._id}</td>
+            <tr key={quote.numeric_id}>
+              <td>{quote.numeric_id}</td>
               <td>{quote.customer_email}</td>
               <td>{quote.total.toFixed(2)}</td>
               <td>
