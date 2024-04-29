@@ -4,7 +4,7 @@ const Quote = require('../models/Quote');
 
 const getFinalizedQuotes = async (req, res) => {
   try {
-    const finalizedQuotes = await Quote.find({ status: 'finalized' }).select('numeric_id customer_email total');
+    const finalizedQuotes = await Quote.find({ status: 'finalized' });
     res.json(finalizedQuotes);
   } catch (error) {
     console.error('Error fetching finalized quotes:', error);
@@ -24,7 +24,8 @@ const updateFinalizedQuote = async (req, res) => {
   
       // Update the fields
       quote.line_items = updatedData.line_items;
-      quote.total = updatedData.total;
+      updatedData.total = calculateTotal(updatedQuoteData.line_items, updatedQuoteData.discount);
+      updatedData.discount = updatedQuoteData.discount;
       quote.secret_notes = updatedData.secret_notes;
   
       await quote.save();
@@ -35,7 +36,7 @@ const updateFinalizedQuote = async (req, res) => {
     }
   };
 
-const convertToPurchaseOrder = async (req, res) => {
+const sanctionQuote = async (req, res) => {
   try {
     const quoteId = req.params.id;
     const updatedQuote = req.body;
@@ -58,6 +59,6 @@ const convertToPurchaseOrder = async (req, res) => {
 
 module.exports = {
     getFinalizedQuotes,
-    convertToPurchaseOrder,
+    sanctionQuote,
     updateFinalizedQuote,
   };
