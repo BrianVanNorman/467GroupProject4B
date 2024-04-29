@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './SanctionQuote.css';
 
@@ -10,10 +10,9 @@ function SanctionQuote() {
   const [secretNotes, setSecretNotes] = useState([]);
   const [discount, setDiscount] = useState({ type: 'percent', value: 0 });
   const [total, setTotal] = useState(0);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
 
-  useEffect(() => {
-    fetchFinalizedQuotes();
-  }, []);
+
 
   const fetchFinalizedQuotes = async () => {
     try {
@@ -23,27 +22,47 @@ function SanctionQuote() {
       console.error('Error fetching finalized quotes:', error);
     }
   };
+  useEffect(() => {
+    fetchFinalizedQuotes();
+  }, []);
 
-  const handleEditQuote = (quote) => {
-    setSelectedQuote(quote);
-    setLineItems(quote.line_items || []);
-    setSecretNotes(quote.secret_notes || []);
-    setDiscount({ type: 'percent', value: 0 }); // Reset discount
-    setTotal(quote.total || 0);
-    setShowModal(true);
+  const handleEditQuote = async (quote) => {
+    try {
+      const response = await axios.get(`/api/customers/${quote.customer_id}`);
+      const customer = response.data;
+  
+      setSelectedQuote(quote);
+      setSelectedCustomer(customer);
+      setLineItems(quote.line_items);
+      setSecretNotes(quote.secret_notes);
+      setTotal(quote.total);
+  
+      const subtotal = quote.line_items.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0), 0);
+      const discountAmount = subtotal - quote.total;
+      const discountType = discountAmount > 0 ? 'amount' : 'percent';
+      const discountValue = discountType === 'amount' ? discountAmount : ((discountAmount / subtotal) * 100).toFixed(2);
+      setDiscount({ type: discountType, value: discountValue });
+  
+      setShowModal(true);
+    } catch (error) {
+      console.error('Error fetching customer data:', error);
+      alert('An error occurred while fetching customer data.');
+    }
   };
 
+
   const handleCloseModal = () => {
+    setSelectedCustomer(null);
     setSelectedQuote(null);
-    setLineItems([]);
-    setSecretNotes([]);
+    setLineItems([{ description: '', quantity: '', price: '' }]);
+    setSecretNotes(['']);
     setDiscount({ type: 'percent', value: 0 });
     setTotal(0);
     setShowModal(false);
   };
 
   const addLineItem = () => {
-    setLineItems([...lineItems, { description: '', quantity: 1, price: 0 }]);
+    setLineItems([...lineItems, { description: '', quantity: '', price: '' }]);
   };
 
   const removeLineItem = (index) => {
@@ -55,7 +74,8 @@ function SanctionQuote() {
   };
 
   const removeSecretNote = (index) => {
-    setSecretNotes(prev => prev.filter((_, i) => i !== index));
+    const newSecretNotes = secretNotes.filter((_, i) => i !== index);
+    setSecretNotes(newSecretNotes);
   };
 
   const handleLineItemChange = (index, field, value) => {
@@ -72,60 +92,106 @@ function SanctionQuote() {
     setSecretNotes(updatedSecretNotes);
   };
 
-  const handleDiscountChange = (value, type) => {
-    setDiscount({ type, value: parseFloat(value) });
+  const calculateTotal = () => {
+    const subtotal = lineItems.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0), 0);
+    if (discount && discount.type) {
+      const discountAmount = discount.type === 'percent' ? subtotal * (discount.value / 100) : discount.value;
+      setTotal(subtotal - discountAmount);
+    } else {
+      setTotal(subtotal);
+    }
   };
-
-  const calculateTotal = useCallback(() => {
-    const subtotal = lineItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const discountAmount = discount.type === 'percent' ? subtotal * (discount.value / 100) : discount.value;
-    setTotal(subtotal - discountAmount);
-  }, [lineItems, discount]);
 
   useEffect(() => {
     calculateTotal();
-  }, [lineItems, discount, calculateTotal]);
+  }, [discount, calculateTotal]);
+  useEffect(() => {
+    calculateTotal();
+  }, [lineItems, discount]);
 
-  const handleConvertToPurchaseOrder = async () => {
+  const handleSanctionQuote = async () => {
     try {
+      const date = new Date();
+      const formatDate = date.toISOString().split('T')[0].replace(/-/g, ' ');
       const updatedQuote = {
-        ...selectedQuote,
-        line_items: lineItems,
+        line_items: lineItems.map(item => ({
+          description: item.description,
+          price: parseFloat(item.price),
+          quantity: parseFloat(item.quantity)
+        })),
         secret_notes: secretNotes,
+        customer_id: selectedCustomer.id,
+        customer_address: selectedCustomer.street,
+        discount: discount,
         total: total,
+        date: formatDate,
+        status: 'sanctioned',
+        // Add other fields you expect to update
       };
-
-      await axios.put(`/api/quotes/${selectedQuote._id}/convert-to-purchase-order`, updatedQuote);
-      alert('Quote converted to purchase order successfully!');
-      handleCloseModal();
-      fetchFinalizedQuotes();
+      
+      if (selectedQuote) {
+        const response = await axios.put(`/api/quotes/${selectedQuote._id}`, updatedQuote);
+        if (response.status === 200) {
+          alert('Quote sanctioned successfully!');
+          handleCloseModal();
+          fetchFinalizedQuotes();
+        } else {
+          alert('Failed to sanction quote.');
+        }
+    } else {
+        const response = await axios.post('/api/quotes', updatedQuote);
+        if (response.status === 201) {
+          alert('Quote sanctioned successfully!');
+          handleCloseModal();
+          fetchFinalizedQuotes();
+        } else {
+          alert('Failed to sanction quote.');
+        }
+      }
     } catch (error) {
-      console.error('Error converting quote to purchase order:', error);
-      alert('An error occurred while converting the quote to a purchase order.');
+      console.error('Error sanctioning quote:', error);
+      alert('An error occurred while sanctioning.');
     }
   };
 
   const handleSaveChanges = async () => {
     try {
-      const updatedQuoteData = {
+      const date = new Date();
+      const formatDate = date.toISOString().split('T')[0].replace(/-/g, ' ');
+      const updatedQuote = {
         line_items: lineItems.map(item => ({
-          name: item.name,
           description: item.description,
           price: parseFloat(item.price),
-          quantity: parseFloat(item.quantity),
+          quantity: parseFloat(item.quantity)
         })),
-        total: total,
         secret_notes: secretNotes,
+        customer_id: selectedCustomer.id,
+        customer_address: selectedCustomer.street,
+        discount: discount,
+        total: total,
+        date: formatDate,
+        status: 'finalized',
         // Add other fields you expect to update
       };
   
-      const response = await axios.put(`/api/quotes/${selectedQuote._id}`, updatedQuoteData);
-      if (response.status === 200) {
-        alert('Quote updated successfully!');
-        fetchFinalizedQuotes();
-        handleCloseModal();
+      if (selectedQuote) {
+        const response = await axios.put(`/api/quotes/${selectedQuote._id}`, updatedQuote);
+        if (response.status === 200) {
+          alert('Quote updated successfully!');
+          fetchFinalizedQuotes();
+          handleCloseModal();
+        } else {
+          alert('Failed to update quote.');
+        }
       } else {
-        alert('Failed to update quote.');
+        const response = await axios.post('/api/quotes', updatedQuote);
+        if (response.status === 201) {
+          alert('Draft updated successfully!');
+          handleCloseModal();
+          fetchFinalizedQuotes();
+        } else {
+          alert('Failed to save quote.');
+        }
       }
     } catch (error) {
       console.error('Error saving quote changes:', error);
@@ -147,10 +213,10 @@ function SanctionQuote() {
         </thead>
         <tbody>
           {finalizedQuotes.map((quote) => (
-            <tr key={quote.numeric_id}>
+            <tr key={quote._id}>
               <td>{quote.numeric_id}</td>
               <td>{quote.customer_email}</td>
-              <td>{quote.total.toFixed(2)}</td>
+              <td>${quote.total.toFixed(2)}</td>
               <td>
                 <button onClick={() => handleEditQuote(quote)}>Edit</button>
               </td>
@@ -209,18 +275,15 @@ function SanctionQuote() {
                   type="number"
                   placeholder="Discount"
                   value={discount.value}
-                  onChange={(e) => handleDiscountChange(e.target.value, discount.type)}
+                  onChange={(e) => setDiscount({ ...discount, value: parseFloat(e.target.value) })}
                 />
-                <select
-                  value={discount.type}
-                  onChange={(e) => handleDiscountChange(discount.value, e.target.value)}
-                >
+                <select value={discount.type} onChange={(e) => setDiscount({ ...discount, type: e.target.value })}>
                   <option value="percent">Percent</option>
                   <option value="amount">Amount</option>
                 </select>
-                {/* this is where the apply discount button should be once apply discount works (replace bottom one with top one) */}
-                {/* <button type="button" onClick={applyDiscount}>Apply</button> */}
-                <button type="button">Apply</button>
+                
+                {/*<button type="button" onClick={applyDiscount}>Apply</button>*/}
+                
               </div>
               <div>
                 <label>Total:</label>
@@ -231,7 +294,7 @@ function SanctionQuote() {
               <button type="button" onClick={addSecretNote}>Add Secret Note</button>
               <button type="button" onClick={addLineItem}>Add Line Item</button>
               <button type="button" onClick={handleSaveChanges}>Save</button>
-              <button type="button" onClick={handleConvertToPurchaseOrder}>Convert to Purchase Order</button>
+              <button type="button" onClick={handleSanctionQuote}>Sanction Quote</button>
               <button type="button" onClick={handleCloseModal}>Cancel</button>
             </div>
           </div>
