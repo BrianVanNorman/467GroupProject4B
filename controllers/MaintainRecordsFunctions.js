@@ -24,9 +24,9 @@ const adminSearchQuotes = async (req, res) => {
                 'SELECT id, name, city, street, contact FROM customers WHERE name LIKE ?',
                 [`%${searchTerm}%`]
                 );
-                if(rows.data === 1) {
+                if(rows.length === 1) {
                     // Corresponding ID for customer name found
-                    customer = rows.data[0].id;
+                    customer = rows[0].id;
                 }
                 else {
                     // Change customer id to -1 to indicate no corresponding customer in legacy DB
@@ -34,6 +34,7 @@ const adminSearchQuotes = async (req, res) => {
                 }
             } catch (error) {
                 console.error('Error searching customers:', error);
+                customer = '';
             }
         }
 

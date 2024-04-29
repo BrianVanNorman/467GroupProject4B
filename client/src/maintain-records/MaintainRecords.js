@@ -159,8 +159,8 @@ function MaintainRecords() {
           <tbody>
             {quotes.length > 0 ? (
               quotes.map((quote) => (
-                <tr key={quote._id}>
-                  <td>{quote._id}</td>
+                <tr key={quote.numeric_id}>
+                  <td>{quote.numeric_id}</td>
                   <td>{quote.customer_email}</td>
                   <td>{quote.total}</td>
                   <td>{quote.status}</td>
