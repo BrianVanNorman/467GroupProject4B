@@ -147,10 +147,10 @@ function SanctionQuote() {
         </thead>
         <tbody>
           {finalizedQuotes.map((quote) => (
-            <tr key={quote.numeric_id}>
-              <td>{quote.numeric_id}</td>
+            <tr key={quote._id}>
+              <td>{quote._id}</td>
               <td>{quote.customer_email}</td>
-              <td>{quote.total}</td>
+              <td>{quote.total.toFixed(2)}</td>
               <td>
                 <button onClick={() => handleEditQuote(quote)}>Edit</button>
               </td>
@@ -160,13 +160,11 @@ function SanctionQuote() {
       </table>
 
       {showModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>Edit Quote</h3>
-            <p>{selectedQuote.customer_name}</p>
-            <p>{selectedQuote.customer_address}</p>
-            <p>{selectedQuote.customer_email}</p>
+        <div className="sanction-form-overlay">
+          <div className="sanction-form">
             <form onSubmit={(e) => e.preventDefault()}>
+              <h3>Edit Quote</h3>
+              <p className="customer-email">{selectedQuote.customer_email}</p>
               {lineItems.map((item, index) => (
                 <div key={index} className="line-item-form">
                   <input
@@ -193,7 +191,6 @@ function SanctionQuote() {
                   <button type="button" onClick={() => removeLineItem(index)}>Remove</button>
                 </div>
               ))}
-              <button type="button" onClick={addLineItem}>Add Line Item</button>
 
               {secretNotes.map((note, index) => (
                 <div key={index} className="secret-note-form">
@@ -205,7 +202,6 @@ function SanctionQuote() {
                   <button type="button" onClick={() => removeSecretNote(index)}>Remove</button>
                 </div>
               ))}
-              <button type="button" onClick={addSecretNote}>Add Secret Note</button>
 
               <div>
                 <label>Discount:</label>
@@ -227,12 +223,14 @@ function SanctionQuote() {
                 <label>Total:</label>
                 <span>{total.toFixed(2)}</span>
               </div>
-              <div className="action-buttons">
-                <button type="button" onClick={handleSaveChanges}>Save</button>
-                <button type="button" onClick={handleConvertToPurchaseOrder}>Convert to Purchase Order</button>
-                <button type="button" onClick={handleCloseModal}>Cancel</button>
-              </div>
             </form>
+            <div className="action-buttons">
+              <button type="button" onClick={addSecretNote}>Add Secret Note</button>
+              <button type="button" onClick={addLineItem}>Add Line Item</button>
+              <button type="button" onClick={handleSaveChanges}>Save</button>
+              <button type="button" onClick={handleConvertToPurchaseOrder}>Convert to Purchase Order</button>
+              <button type="button" onClick={handleCloseModal}>Cancel</button>
+            </div>
           </div>
         </div>
       )}
