@@ -334,8 +334,8 @@ function EnterQuote() {
       {showQuoteForm && (
         <div className="quote-form-overlay">
           <div className="quote-form">
-            <h3>Create New Quote for {selectedCustomer.name}</h3>
             <form onSubmit={(e) => e.preventDefault()}>
+              <h3>Create New Quote for {selectedCustomer.name}</h3>
               <div className="address-container">
                 <p>{selectedCustomer.street}<br/>
                 {selectedCustomer.city}<br/>
@@ -406,27 +406,27 @@ function EnterQuote() {
                 <label>Total:</label>
                 <span>{total.toFixed(2)}</span>
               </div>
-              <div className="action-buttons">
-                <button type="button" onClick={addSecretNote}>
-                  Add Secret Note
-                </button>
-                <button type="button" onClick={addLineItem}>
-                  Add Line Item
-                </button>
-                <button type="button" onClick={finalizeQuote}>
-                  Finalize Quote
-                </button>
-                <button type="button" onClick={saveDraftQuote}>
-                  Save Draft
-                </button>
-                <button type="button" onClick={handleCloseQuoteForm}>
-                  Cancel
-                </button>
-                <button type="button" onClick={handleDeleteDraft}>
-                  Delete Draft
-                </button>
-              </div>
             </form>
+            <div className="action-buttons">
+              <button type="button" onClick={addSecretNote}>
+                Add Secret Note
+              </button>
+              <button type="button" onClick={addLineItem}>
+                Add Line Item
+              </button>
+              <button type="button" onClick={finalizeQuote}>
+                Finalize Quote
+              </button>
+              <button type="button" onClick={saveDraftQuote}>
+                Save Draft
+              </button>
+              <button type="button" onClick={handleCloseQuoteForm}>
+                Cancel
+              </button>
+              <button type="button" onClick={handleDeleteDraft}>
+                Delete Draft
+              </button>
+            </div>
           </div>
         </div>
       )}
