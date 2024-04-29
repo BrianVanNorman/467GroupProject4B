@@ -35,7 +35,7 @@ router.get('/quotes/finalized', getFinalizedQuotes);
 router.put('/quotes/:id', updateFinalizedQuote);
 
 // Convert quote to purchase order
-router.put('/quotes/:id/convert-to-purchase-order', sanctionQuote);
+router.put('/quotes/:id/sanction-quote', sanctionQuote);
 
 //               //
 // Login routes: //

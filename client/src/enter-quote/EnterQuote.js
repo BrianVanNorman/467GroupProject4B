@@ -308,7 +308,7 @@ function EnterQuote() {
       )}
 
       {draftQuotes.length > 0 && (
-        <div>
+        <div className='draft-quote'>
           <h3>Draft Quotes:</h3>
           <table>
             <thead>
@@ -322,7 +322,7 @@ function EnterQuote() {
             <tbody>
               {draftQuotes.map((quote) => (
                 <tr key={quote._id}>
-                <td>{quote._id}</td>
+                <td>{quote.numeric_id}</td>
                 <td>{quote.customer_email}</td>
                 <td>{quote.total.toFixed(2)}</td>
                 <td>

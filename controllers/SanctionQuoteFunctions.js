@@ -13,47 +13,62 @@ const getFinalizedQuotes = async (req, res) => {
 };
 
 const updateFinalizedQuote = async (req, res) => {
-    try {
-      const quoteId = req.params.id;
-      const updatedData = req.body;
-  
-      const quote = await Quote.findById(quoteId);
-      if (!quote) {
-        return res.status(404).json({ error: 'Quote not found' });
-      }
-  
-      // Update the fields
-      quote.line_items = updatedData.line_items;
-      updatedData.total = calculateTotal(updatedQuoteData.line_items, updatedQuoteData.discount);
-      updatedData.discount = updatedQuoteData.discount;
-      quote.secret_notes = updatedData.secret_notes;
-  
-      await quote.save();
-      res.json(quote);
-    } catch (error) {
-      console.error('Error updating finalized quote:', error);
-      res.status(500).json({ error: 'Server error' });
+  try {
+    const quoteId = req.params.id;
+    const updatedQuoteData = req.body;
+    updatedQuoteData.total = calculateTotal(updatedQuoteData.line_items, updatedQuoteData.discount);
+    updatedQuoteData.discount = updatedQuoteData.discount; // Include the discount information
+
+    const updatedQuote = await QuoteModel.findByIdAndUpdate(quoteId, updatedQuoteData, { new: true });
+    if (!updatedQuote) {
+      return res.status(404).send('Finalized quote not found');
     }
+    res.json(updatedQuote);
+  } catch (error) {
+    console.error('Error updating finalized quote:', error);
+    res.status(500).send('Error updating finalized quote');
+  }
   };
+  //  this function to calculate the total
+const calculateTotal = (lineItems, discount) => {
+  let subtotal = 0;
+  for (const item of lineItems) {
+    subtotal += item.price * item.quantity;
+  }
+  if (discount && discount.type) {
+    const discountAmount = discount.type === 'percent' ? subtotal * (discount.value / 100) : discount.value;
+    return subtotal - discountAmount;
+  }
+  return subtotal;
+};
 
 const sanctionQuote = async (req, res) => {
   try {
-    const quoteId = req.params.id;
-    const updatedQuote = req.body;
-
-    const quote = await Quote.findByIdAndUpdate(quoteId, updatedQuote, { new: true });
-
-    if (!quote) {
-      return res.status(404).json({ error: 'Quote not found' });
+    // Attempt to establish a connection if not already connected
+    if (mongoose.connection.readyState !== 1) {
+      await connectDB();
     }
 
-    quote.status = 'ordered';
-    await quote.save();
+    // Assigning the numeric_id to the quote
+    const quoteData = req.body;
 
-    res.json({ message: 'Quote converted to purchase order successfully' });
+    
+    const counter = await Counter.getNextSequence('quote');
+    if (!counter) {
+        return res.status(500).send('Failed to retrieve numeric ID');
+    }
+    
+    quoteData.numeric_id = counter.seq;
+
+    // Calculating total and saving quote
+    quoteData.total = calculateTotal(quoteData.line_items, quoteData.discount);
+    quoteData.discount = quoteData.discount; // Include the discount information
+    const newQuote = new QuoteModel(quoteData);
+    const savedQuote = await newQuote.save();
+    res.status(201).json(savedQuote);
   } catch (error) {
-    console.error('Error converting quote to purchase order:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('Failed to sanction quote:', error);
+    res.status(500).send('Failed to sanction quote: ' + error.message);
   }
 };
 

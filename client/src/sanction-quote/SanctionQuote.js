@@ -32,7 +32,7 @@ function SanctionQuote() {
       const customer = response.data;
   
       setSelectedQuote(quote);
-      //setSelectedCustomer(customer);
+      setSelectedCustomer(customer);
       setLineItems(quote.line_items);
       setSecretNotes(quote.secret_notes);
       setTotal(quote.total);
@@ -111,20 +111,46 @@ function SanctionQuote() {
 
   const handleSanctionQuote = async () => {
     try {
+      const date = new Date();
+      const formatDate = date.toISOString().split('T')[0].replace(/-/g, ' ');
       const updatedQuote = {
-        ...selectedQuote,
-        line_items: lineItems,
+        line_items: lineItems.map(item => ({
+          description: item.description,
+          price: parseFloat(item.price),
+          quantity: parseFloat(item.quantity)
+        })),
         secret_notes: secretNotes,
+        customer_id: selectedCustomer.id,
+        customer_address: selectedCustomer.street,
+        discount: discount,
         total: total,
+        date: formatDate,
+        status: 'sanctioned',
+        // Add other fields you expect to update
       };
-
-      await axios.put(`/api/quotes/${selectedQuote._id}/sanction-quote`, updatedQuote);
-      alert('Quote sanctioned successfully!');
-      handleCloseModal();
-      fetchFinalizedQuotes();
+      
+      if (selectedQuote) {
+        const response = await axios.put(`/api/quotes/${selectedQuote._id}`, updatedQuote);
+        if (response.status === 200) {
+          alert('Quote sanctioned successfully!');
+          handleCloseModal();
+          fetchFinalizedQuotes();
+        } else {
+          alert('Failed to sanction quote.');
+        }
+    } else {
+        const response = await axios.post('/api/quotes', updatedQuote);
+        if (response.status === 201) {
+          alert('Quote sanctioned successfully!');
+          handleCloseModal();
+          fetchFinalizedQuotes();
+        } else {
+          alert('Failed to sanction quote.');
+        }
+      }
     } catch (error) {
       console.error('Error sanctioning quote:', error);
-      alert('An error occurred while converting the quote to a purchase order.');
+      alert('An error occurred while sanctioning.');
     }
   };
 
@@ -132,7 +158,7 @@ function SanctionQuote() {
     try {
       const date = new Date();
       const formatDate = date.toISOString().split('T')[0].replace(/-/g, ' ');
-      const updatedQuoteData = {
+      const updatedQuote = {
         line_items: lineItems.map(item => ({
           description: item.description,
           price: parseFloat(item.price),
@@ -149,7 +175,7 @@ function SanctionQuote() {
       };
   
       if (selectedQuote) {
-        const response = await axios.put(`/api/quotes/${selectedQuote._id}`, updatedQuoteData);
+        const response = await axios.put(`/api/quotes/${selectedQuote._id}`, updatedQuote);
         if (response.status === 200) {
           alert('Quote updated successfully!');
           fetchFinalizedQuotes();
@@ -158,9 +184,9 @@ function SanctionQuote() {
           alert('Failed to update quote.');
         }
       } else {
-        const response = await axios.post('/api/quotes', updatedQuoteData);
+        const response = await axios.post('/api/quotes', updatedQuote);
         if (response.status === 201) {
-          alert('Draft sanctioned successfully!');
+          alert('Draft updated successfully!');
           handleCloseModal();
           fetchFinalizedQuotes();
         } else {
@@ -187,7 +213,7 @@ function SanctionQuote() {
         </thead>
         <tbody>
           {finalizedQuotes.map((quote) => (
-            <tr key={quote.numeric_id}>
+            <tr key={quote._id}>
               <td>{quote.numeric_id}</td>
               <td>{quote.customer_email}</td>
               <td>${quote.total.toFixed(2)}</td>
