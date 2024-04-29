@@ -16,5 +16,11 @@ const getNextSequence = async (name) => {
     return result;
 };
 
+const insertCounter = async (name) => {
+    const result = new Counter({_id: name, seq:0 });
+    await result.save();
+    console.log("Counter initialized for ", name);
+};
+
 const Counter = mongoose.model('Counter', counterSchema);
-module.exports = { Counter, getNextSequence };
+module.exports = { Counter, getNextSequence, insertCounter };

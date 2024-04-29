@@ -6,13 +6,7 @@ const QuoteModel = require('../models/Quote');
 const Counter = require('../models/Counter');
 
 async function initCounter() {
-    const initialCounter = await Counter.findOne({_id: 'quote'});
-    if (!initialCounter) {
-        await new Counter({_id: 'quote', seq: 0}).save();
-        console.log('Counter initialized for quotes.');
-    } else {
-        console.log('Counter already initialized.');
-    }
+    await Counter.insertCounter('quote');
 }
 
 async function insertInitialData() {
@@ -47,7 +41,10 @@ async function insertNewQuote() {
     const formatDate = date.toISOString().split('T')[0].replace(/-/g, ' ');
     console.log(formatDate);
 
+    const currentQuoteCounter = await Counter.getNextSequence('quote');
+
     const newQuote = new QuoteModel({
+        numeric_id: currentQuoteCounter.seq,
         date: formatDate,
         associate_id: associate._id,
         customer_id: 123,
