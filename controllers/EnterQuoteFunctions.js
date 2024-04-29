@@ -2,6 +2,7 @@ const connectLegacyDB = require('../legacyDB');
 const QuoteModel = require('../models/Quote');
 const connectDB = require('../db');
 const mongoose = require('mongoose');
+const Counter = require('../models/Counter');
 
 //Search function for searching through Legacy DB
 const searchCustomersByName = async (req, res) => {
@@ -71,7 +72,17 @@ const createNewQuote = async (req, res) => {
       await connectDB();
     }
 
+    // Assigning the numeric_id to the quote
     const quoteData = req.body;
+
+    const counter = await Counter.getNextSequence('quote');
+    if (!counter) {
+        return res.status(500).send('Failed to retrieve numeric ID');
+    }
+    
+    quoteData.numeric_id = counter.seq;
+
+    // Calculating total and saving quote
     quoteData.total = calculateTotal(quoteData.line_items, quoteData.discount);
     quoteData.discount = quoteData.discount; // Include the discount information
     const newQuote = new QuoteModel(quoteData);

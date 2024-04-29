@@ -5,7 +5,7 @@ const router = express.Router();
 const { searchCustomersByName, getCustomerById, createNewQuote, fetchDraftQuotes, updateDraftQuote, deleteDraftQuote } = require('./EnterQuoteFunctions');
 const { getFinalizedQuotes, updateFinalizedQuote, convertToPurchaseOrder } = require('./SanctionQuoteFunctions');
 const { searchAssociates } = require('./LoginFunctions');
-const { adminSearchQuotes } = require('./MaintainRecordsFunctions');
+const { adminSearchQuotes, listAssociates } = require('./MaintainRecordsFunctions');
 
 // Define routes here
 
@@ -49,6 +49,7 @@ router.get('/associates/search', searchAssociates);
 //                         //
 
 router.get('/admin/quotes/search', adminSearchQuotes);
+router.get('/associates/list', listAssociates);
 
 
 module.exports = router;

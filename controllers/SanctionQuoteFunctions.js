@@ -4,7 +4,7 @@ const Quote = require('../models/Quote');
 
 const getFinalizedQuotes = async (req, res) => {
   try {
-    const finalizedQuotes = await Quote.find({ status: 'finalized' });
+    const finalizedQuotes = await Quote.find({ status: 'finalized' }).select('numeric_id customer_email total');
     res.json(finalizedQuotes);
   } catch (error) {
     console.error('Error fetching finalized quotes:', error);

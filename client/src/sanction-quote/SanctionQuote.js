@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './SanctionQuote.css';
 
@@ -26,10 +26,10 @@ function SanctionQuote() {
 
   const handleEditQuote = (quote) => {
     setSelectedQuote(quote);
-    setLineItems(quote.line_items);
-    setSecretNotes(quote.secret_notes);
-    setTotal(quote.total);
-    calculateTotal(quote.line_items, quote.total);
+    setLineItems(quote.line_items || []);
+    setSecretNotes(quote.secret_notes || []);
+    setDiscount({ type: 'percent', value: 0 }); // Reset discount
+    setTotal(quote.total || 0);
     setShowModal(true);
   };
 
@@ -42,56 +42,49 @@ function SanctionQuote() {
     setShowModal(false);
   };
 
-  // Add new line item to the lineItems state
   const addLineItem = () => {
-    setLineItems([...lineItems, { description: '', quantity: 0, price: 0 }]);
+    setLineItems([...lineItems, { description: '', quantity: 1, price: 0 }]);
   };
 
-  // Remove line item from the lineItems state
   const removeLineItem = (index) => {
-    const newLineItems = lineItems.filter((_, i) => i !== index);
-    setLineItems(newLineItems);
+    setLineItems(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Add new secret note to the secretNotes state
   const addSecretNote = () => {
     setSecretNotes([...secretNotes, '']);
   };
 
-  // Remove secret note from the secretNotes state
   const removeSecretNote = (index) => {
-    const newSecretNotes = secretNotes.filter((_, i) => i !== index);
-    setSecretNotes(newSecretNotes);
+    setSecretNotes(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleLineItemChange = (index, field, value) => {
-    const newLineItems = lineItems.map((item, i) =>
+    const updatedLineItems = lineItems.map((item, i) =>
       i === index ? { ...item, [field]: value } : item
     );
-    setLineItems(newLineItems);
+    setLineItems(updatedLineItems);
   };
 
   const handleSecretNoteChange = (index, value) => {
-    const newSecretNotes = secretNotes.map((note, i) =>
+    const updatedSecretNotes = secretNotes.map((note, i) =>
       i === index ? value : note
     );
-    setSecretNotes(newSecretNotes);
+    setSecretNotes(updatedSecretNotes);
   };
 
-  const calculateTotal = (items, currentTotal) => {
-    const subtotal = items.reduce(
-      (sum, item) => sum + (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0),
-      0
-    );
+  const handleDiscountChange = (value, type) => {
+    setDiscount({ type, value: parseFloat(value) });
+  };
+
+  const calculateTotal = useCallback(() => {
+    const subtotal = lineItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const discountAmount = discount.type === 'percent' ? subtotal * (discount.value / 100) : discount.value;
     setTotal(subtotal - discountAmount);
-  };
+  }, [lineItems, discount]);
 
   useEffect(() => {
-    if (selectedQuote) {
-      calculateTotal(lineItems, total);
-    }
-  }, [lineItems, discount]);
+    calculateTotal();
+  }, [lineItems, discount, calculateTotal]);
 
   const handleConvertToPurchaseOrder = async () => {
     try {
@@ -154,8 +147,8 @@ function SanctionQuote() {
         </thead>
         <tbody>
           {finalizedQuotes.map((quote) => (
-            <tr key={quote._id}>
-              <td>{quote._id}</td>
+            <tr key={quote.numeric_id}>
+              <td>{quote.numeric_id}</td>
               <td>{quote.customer_email}</td>
               <td>{quote.total.toFixed(2)}</td>
               <td>
@@ -216,9 +209,12 @@ function SanctionQuote() {
                   type="number"
                   placeholder="Discount"
                   value={discount.value}
-                  onChange={(e) => setDiscount({ ...discount, value: parseFloat(e.target.value) })}
+                  onChange={(e) => handleDiscountChange(e.target.value, discount.type)}
                 />
-                <select value={discount.type} onChange={(e) => setDiscount({ ...discount, type: e.target.value })}>
+                <select
+                  value={discount.type}
+                  onChange={(e) => handleDiscountChange(discount.value, e.target.value)}
+                >
                   <option value="percent">Percent</option>
                   <option value="amount">Amount</option>
                 </select>
