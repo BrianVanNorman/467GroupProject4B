@@ -6,7 +6,14 @@ function ConvertQuote() {
   const [sanctionedQuotes, setSanctionedQuotes] = useState([]);
   const [selectedQuote, setSelectedQuote] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [discount, setDiscount] = useState({ type: 'percent', amount: 0 });
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [lineItems, setLineItems] = useState([{ description: '', quantity: '', price: '' }]);
+  const [secretNotes, setSecretNotes] = useState(['']);
+  const [total, setTotal] = useState(0);
+  const [results, setResults] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [showQuoteForm, setShowQuoteForm] = useState(false);
+  const [discount, setDiscount] = useState({ type: 'percent', value: 0 });
 
   useEffect(() => {
     fetchSanctionedQuotes();
@@ -22,11 +29,50 @@ function ConvertQuote() {
     }
   };
 
+  const handleSelectQuote = async (quote) => {
+    setSelectedQuote(quote);
+    setLineItems(quote.line_items);
+    setSecretNotes(quote.secret_notes);
+    setDiscount(quote.discount || { type: 'percent', value: 0 });
+    setTotal(quote.total);
+    setShowModal(true);
+  };
+    
+  const calculateDiscountedTotal = () => {
+    let discountAmount = discount.type === 'percent' ? (total * discount.value / 100) : discount.value;
+    return total - discountAmount;
+  };
+
+  const handleDiscountChange = (e) => {
+    const { value, name } = e.target;
+    setDiscount({ ...discount, [name]: value });
+    const newTotal = calculateDiscountedTotal();
+    setTotal(newTotal);
+  };
+    
+    
+    const saveSanctionedQuote = async () => {
+      try {
+          const quoteData = {
+              total: total,
+          };
+          const response = await axios.put(`/api/quotes/sanctioned/${selectedQuote._id}`, quoteData);
+          if (response.status === 200) {
+              alert('Quote updated successfully!');
+              fetchSanctionedQuotes();  // Refresh the list of quotes
+          } else {
+              alert('Failed to update quote.');
+          }
+          setShowModal(false);
+      } catch (error) {
+          console.error('Error updating quote:', error);
+          alert('An error occurred while updating the quote.');
+      }
+  };
+
   const handleProcessOrder = async () => {
     try {
-      await axios.post(`/api/quotes/${selectedQuote._id}/process-order`, {
-        discount,
-      });
+      await axios.post(`/api/quotes/${selectedQuote._id}/process-order`);
       setShowModal(false);
       fetchSanctionedQuotes();
       alert('Order processed successfully!');
@@ -34,70 +80,80 @@ function ConvertQuote() {
       console.error('Error processing order:', error);
     }
   };
-
-  return (
-    <div className="convert-quote">
-      <h2>Convert Quote to Purchase Order</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Quote ID</th>
-            <th>Customer Email</th>
-            <th>Amount</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-         {sanctionedQuotes.length > 0 ? (
-            sanctionedQuotes.map((quote) => (
+  
+    return (
+      <div className="convert-quote">
+        <h2>Sanctioned Quotes</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Quote ID</th>
+              <th>Customer Email</th>
+              <th>Amount</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sanctionedQuotes.map((quote) => (
               <tr key={quote._id}>
-                <td>{quote._id}</td>
+                <td>{quote.numeric_id}</td>
                 <td>{quote.customer_email}</td>
-                <td>{quote.amount}</td>
+                <td>${quote.total.toFixed(2)}</td>
                 <td>
-                  <button onClick={() => {
-                    setSelectedQuote(quote);
-                    setShowModal(true);
-                  }}>
-                    Process Order
-                  </button>
+                  <button onClick={() => handleSelectQuote(quote)}>Edit</button>
                 </td>
               </tr>
-            )) 
-          ) : (
-            <tr>
-              <td colSpan="4">No sanctioned quotes found</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-
-      {showModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>Process Order</h3>
-            <div className="discount">
-              <select
-                value={discount.type}
-                onChange={(e) => setDiscount({ ...discount, type: e.target.value })}
-              >
-                <option value="percent">Percent</option>
-                <option value="amount">Amount</option>
-              </select>
-              <input
-                type="number"
-                placeholder="Discount"
-                value={discount.amount}
-                onChange={(e) => setDiscount({ ...discount, amount: e.target.value })}
-              />
+            ))}
+          </tbody>
+        </table>
+  
+        {showModal && (
+          <div className="modal">
+            <div className="modal-content">
+              <h3>Edit Sanctioned Quote</h3>
+              <div>
+                <strong>Line Items:</strong>
+                {lineItems.map((item, index) => (
+                  <div key={index}>
+                    Description: {item.description}, Quantity: {item.quantity}, Price: ${item.price}
+                  </div>
+                ))}
+              </div>
+              <div>
+                <strong>Secret Notes:</strong>
+                {secretNotes.map((note, index) => (
+                  <p key={index}>{note}</p>
+                ))}
+              </div>
+              <div className="discount">
+                <label>Discount Type:</label>
+                <select
+                  name="type"
+                  value={discount.type}
+                  onChange={handleDiscountChange}
+                >
+                  <option value="percent">Percent</option>
+                  <option value="amount">Amount</option>
+                </select>
+                <label>Discount Value:</label>
+                <input
+                  type="number"
+                  name="value"
+                  value={discount.value}
+                  onChange={handleDiscountChange}
+                />
+              </div>
+              <div>
+                <strong>Total: ${total.toFixed(2)}</strong>
+              </div>
+              <button onClick={handleProcessOrder}>Process Order</button>
+              <button onClick={saveSanctionedQuote}>Save Changes</button>
+              <button onClick={() => setShowModal(false)}>Cancel</button>
             </div>
-            <button onClick={handleProcessOrder}>Process Order</button>
-            <button onClick={() => setShowModal(false)}>Cancel</button>
           </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default ConvertQuote;
+        )}
+      </div>
+    );
+  }
+  
+  export default ConvertQuote;
