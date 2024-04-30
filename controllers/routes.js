@@ -3,7 +3,7 @@ const router = express.Router();
 
 
 const { searchCustomersByName, getCustomerById, createNewQuote, fetchDraftQuotes, updateDraftQuote, deleteDraftQuote } = require('./EnterQuoteFunctions');
-const { getFinalizedQuotes, updateFinalizedQuote, convertToPurchaseOrder } = require('./SanctionQuoteFunctions');
+const { getFinalizedQuotes, updateFinalizedQuote, sanctionQuote } = require('./SanctionQuoteFunctions');
 const { fetchSanctionedQuotes, updateSanctionedQuote, processOrder } = require('./ConvertQuoteFunctions');
 const { searchAssociates } = require('./LoginFunctions');
 const { adminSearchQuotes, listAssociates } = require('./MaintainRecordsFunctions');
@@ -36,7 +36,7 @@ router.get('/quotes/finalized', getFinalizedQuotes);
 router.put('/quotes/:id', updateFinalizedQuote);
 
 // Convert quote to purchase order
-router.put('/quotes/:id/convert-to-purchase-order', convertToPurchaseOrder);
+router.put('/quotes/:id/sanction-quote', sanctionQuote);
 
 
 //                      //

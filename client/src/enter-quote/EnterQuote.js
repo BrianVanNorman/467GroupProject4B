@@ -102,17 +102,7 @@ function EnterQuote() {
     calculateTotal();
   }, [lineItems, discount]);
 
-  
-  const calculateSubtotal = () => {
-    return lineItems.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0), 0);
-  };
 
-  const applyDiscount = () => {
-    const subtotal = calculateSubtotal();
-    const discountAmount = discount.type === 'percent' ? subtotal * (discount.value / 100) : discount.value;
-    setTotal(subtotal - discountAmount);
-  };
-  
 
   const finalizeQuote = async () => {
     try {
@@ -318,18 +308,32 @@ function EnterQuote() {
       )}
 
       {draftQuotes.length > 0 && (
-        <div>
+        <div className='draft-quote'>
           <h3>Draft Quotes:</h3>
-          <ul>
-            {draftQuotes.map((quote) => (
-              <li key={quote._id}>
-                {quote.customer_email}
-                <button onClick={() => handleEditQuote(quote)}>Edit</button>
-              </li>
-            ))}
-          </ul>
+          <table>
+            <thead>
+              <tr>
+                <th>Quote ID</th>
+                <th>Customer Email</th>
+                <th>Amount</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {draftQuotes.map((quote) => (
+                <tr key={quote._id}>
+                <td>{quote.numeric_id}</td>
+                <td>{quote.customer_email}</td>
+                <td>{quote.total.toFixed(2)}</td>
+                <td>
+                  <button onClick={() => handleEditQuote(quote)}>Edit</button>
+                </td>
+              </tr>
+              ))}
+            </tbody>
+         </table>
         </div>
-      )}
+      )}  
 
       {showQuoteForm && (
         <div className="quote-form-overlay">
@@ -400,10 +404,12 @@ function EnterQuote() {
                   <option value="percent">Percent</option>
                   <option value="amount">Amount</option>
                 </select>
-                <button type="button" onClick={applyDiscount}>Apply</button>
+                
+                {/*<button type="button" onClick={applyDiscount}>Apply</button>*/}
+                
               </div>
               <div>
-                <label>Total:</label>
+                <label>Total:$</label>
                 <span>{total.toFixed(2)}</span>
               </div>
             </form>
