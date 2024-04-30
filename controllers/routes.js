@@ -4,6 +4,7 @@ const router = express.Router();
 
 const { searchCustomersByName, getCustomerById, createNewQuote, fetchDraftQuotes, updateDraftQuote, deleteDraftQuote } = require('./EnterQuoteFunctions');
 const { getFinalizedQuotes, updateFinalizedQuote, sanctionQuote } = require('./SanctionQuoteFunctions');
+const { fetchSanctionedQuotes, updateSanctionedQuote, processOrder } = require('./ConvertQuoteFunctions');
 const { searchAssociates } = require('./LoginFunctions');
 const { adminSearchQuotes, listAssociates } = require('./MaintainRecordsFunctions');
 
@@ -36,6 +37,21 @@ router.put('/quotes/:id', updateFinalizedQuote);
 
 // Convert quote to purchase order
 router.put('/quotes/:id/sanction-quote', sanctionQuote);
+
+
+//                      //
+// ConvertQuote routes: //
+//                      //
+
+// Get Sanctioned Quotes
+router.get('/quotes/sanctioned', fetchSanctionedQuotes);
+
+//Update Sanctioned Quotes total(another discount if applied)
+router.put('/quotes/sanctioned/:id', updateSanctionedQuote);
+
+// To process a sanctioned quote into an order
+router.post('/quotes/:id/process-order', processOrder);
+
 
 //               //
 // Login routes: //
