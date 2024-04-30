@@ -30,6 +30,11 @@ function ConvertQuote() {
   };
 
   const handleSelectQuote = async (quote) => {
+    const response = await axios.get(`/api/customers/${quote.customer_id}`);
+    const customer = response.data;
+
+    setSelectedCustomer(customer);
+
     setSelectedQuote(quote);
     setLineItems(quote.line_items);
     setSecretNotes(quote.secret_notes);
@@ -110,7 +115,13 @@ function ConvertQuote() {
         {showModal && (
           <div className="modal">
             <div className="modal-content">
-              <h3>Edit Sanctioned Quote</h3>
+              <h3>Edit Sanctioned Quote for {selectedCustomer.name}</h3>
+              <p className="customer-email">
+                {selectedCustomer.street}<br/>
+                {selectedCustomer.city}<br/>
+                {selectedCustomer.contact}<br/>  
+                {selectedQuote.customer_email}
+              </p>
               <div>
                 <strong>Line Items:</strong>
                 {lineItems.map((item, index) => (

@@ -229,8 +229,15 @@ function SanctionQuote() {
         <div className="sanction-form-overlay">
           <div className="sanction-form">
             <form onSubmit={(e) => e.preventDefault()}>
-              <h3>Edit Quote</h3>
-              <p className="customer-email">{selectedQuote.customer_email}</p>
+              <h3>Edit Quote for {selectedCustomer.name}<br/></h3>
+              <div className="address-container">
+                <p>
+                  {selectedCustomer.street}<br/>
+                  {selectedCustomer.city}<br/>
+                  {selectedCustomer.contact}<br/>  
+                  {selectedQuote.customer_email}
+                </p>
+              </div>
               {lineItems.map((item, index) => (
                 <div key={index} className="line-item-form">
                   <input
