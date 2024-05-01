@@ -1,5 +1,6 @@
 const connectDB = require('../db');
 const mongoose = require('mongoose');
+const nodemailer = require('nodemailer');
 const Quote = require('../models/Quote');
 
 const getFinalizedQuotes = async (req, res) => {
@@ -42,6 +43,34 @@ const calculateTotal = (lineItems, discount) => {
   return subtotal;
 };
 
+// Email setup
+const transporter = nodemailer.createTransport({
+  service: 'SendGrid', // Using SendGrid's SMTP service
+  auth: {
+      user: 'apikey',
+      pass: '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'
+  }
+});
+
+// Function to send email
+const sendQuoteEmail = async (email, content) => {
+  const mailOptions = {
+      from: 'quotesystemusa@gmail.com',
+      to: email,
+      subject: 'Your Quote Details',
+      text: content,
+      html: `<p>${content}</p>`
+  };
+
+  try {
+      const result = await transporter.sendMail(mailOptions);
+      console.log('Email sent successfully! Result:', result);
+  } catch (error) {
+      console.error('Failed to send email:', error);
+      throw error;
+  }
+};
+
 const sanctionQuote = async (req, res) => {
   try {
     // Attempt to establish a connection if not already connected
@@ -65,6 +94,17 @@ const sanctionQuote = async (req, res) => {
     quoteData.discount = quoteData.discount; // Include the discount information
     const newQuote = new QuoteModel(quoteData);
     const savedQuote = await newQuote.save();
+
+    // Email content
+    const emailContent = 'Hello!';
+    console.log('Attempting to send email to:', savedQuote.customer_email);
+
+    //`Dear Customer,\n\nHere are the details of your sanctioned quote:\nTotal: $${quoteData.total}\nItems: ${quoteData.line_items.map(item => `${item.description}: $${item.price} x ${item.quantity}`).join('\n')}\n\nThank you for choosing us!`;
+
+
+    // Send email to the customer's email address stored in the quote
+    await sendQuoteEmail(savedQuote.customer_email, emailContent);
+
     res.status(201).json(savedQuote);
   } catch (error) {
     console.error('Failed to sanction quote:', error);
