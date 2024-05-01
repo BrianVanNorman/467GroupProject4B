@@ -86,6 +86,9 @@ if (response.data && response.data.errors) {
     commission: commissionAmount,
     status: 'ordered' // Update the status to indicate the quote has now been processed
   }, { new: true });
+
+  quote.associate_id.commission += commissionAmount;  // Update the commission
+        await quote.associate_id.save();  // Save the updated sales associate document
   
   // Respond with success message and updated quote details
   res.json({
@@ -97,7 +100,8 @@ if (response.data && response.data.errors) {
       ...quote.toObject(),
       processingDate,
       commission: commissionAmount
-    }
+    }//,
+    //associateCommission: quote.associate_id.commission  // Optionally return the updated commission
   });
 } catch (error) {
     console.error('Error processing order:', error);

@@ -40,19 +40,22 @@ function ConvertQuote() {
     setSecretNotes(quote.secret_notes);
     setDiscount(quote.discount || { type: 'percent', value: 0 });
     setTotal(quote.total);
+    recalculateTotal(quote.total, quote.discount);
     setShowModal(true);
   };
     
-  const calculateDiscountedTotal = () => {
-    let discountAmount = discount.type === 'percent' ? (total * discount.value / 100) : discount.value;
-    return total - discountAmount;
-  };
+  const recalculateTotal = (baseTotal, discount) => {
+    if (!discount) return;
+    let discountAmount = discount.type === 'percent' ? baseTotal * (discount.value / 100) : discount.value;
+    setTotal(baseTotal - discountAmount);
+  }
 
   const handleDiscountChange = (e) => {
-    const { value, name } = e.target;
-    setDiscount({ ...discount, [name]: value });
-    const newTotal = calculateDiscountedTotal();
-    setTotal(newTotal);
+    const { name, value } = e.target;
+    const newDiscount = { ...discount, [name]: name === 'value' ? parseFloat(value) : value };
+    setDiscount(newDiscount);
+    // Recalculate the total whenever discount changes
+    recalculateTotal(total, newDiscount);
   };
     
     
