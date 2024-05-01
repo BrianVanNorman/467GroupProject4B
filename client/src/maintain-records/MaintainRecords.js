@@ -49,10 +49,15 @@ function MaintainRecords() {
 
   const handleUpdateAssociate = async () => {
     try {
-      await axios.put(`/api/associates/${selectedAssociate._id}`, selectedAssociate);
+      const response = await axios.put(`/api/associates/${selectedAssociate._id}`, selectedAssociate);
       setShowModal(false);
+      if (response.status === 201) {
+        alert('Associate updated successfully!');
+      }
+      else {
+        alert('Associate update failed!');
+      }
       fetchAssociates();
-      alert('Associate updated successfully!');
     } catch (error) {
       console.error('Error updating associate:', error);
     }
@@ -60,9 +65,14 @@ function MaintainRecords() {
 
   const handleDeleteAssociate = async (associateId) => {
     try {
-      await axios.delete(`/api/associates/${associateId}`);
+      const response = await axios.delete(`/api/associates/${associateId}`);
+      if (response.status === 200) {
+        alert('Associate deleted successfully!');
+      }
+      else {
+        alert('Associate deletion failed!');
+      }
       fetchAssociates();
-      alert('Associate deleted successfully!');
     } catch (error) {
       console.error('Error deleting associate:', error);
     }
@@ -70,10 +80,15 @@ function MaintainRecords() {
 
   const handleAddAssociate = async () => {
     try {
-      await axios.post('/api/associates', selectedAssociate);
+      const response = await axios.post('/api/associates', selectedAssociate);
       setShowModal(false);
       fetchAssociates();
-      alert('Associate added successfully!');
+      if (response.status === 201) {
+        alert('Associate added successfully!');
+      }
+      else {
+        alert('Failed to add associate!');
+      }
     } catch (error) {
       console.error('Error adding associate:', error);
     }
@@ -119,7 +134,7 @@ function MaintainRecords() {
               <tr key={associate._id}>
                 <td>{associate.name}</td>
                 <td>{associate.address}</td>
-                <td>{associate.commission}</td>
+                <td>{associate.commission.toFixed(2)}</td>
                 <td>
                   <button onClick={() => handleEditAssociate(associate)}>Edit</button>
                   <button onClick={() => handleDeleteAssociate(associate._id)}>Delete</button>
@@ -218,6 +233,12 @@ function MaintainRecords() {
               placeholder="Name"
               value={selectedAssociate.name}
               onChange={(e) => setSelectedAssociate({ ...selectedAssociate, name: e.target.value })}
+            />
+            <input
+              type="password"
+              placeholder="New password"
+              value={selectedAssociate.password}
+              onChange={(e) => setSelectedAssociate({ ...selectedAssociate, password: e.target.value })}
             />
             <input
               type="text"
