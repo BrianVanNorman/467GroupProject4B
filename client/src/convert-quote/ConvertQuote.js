@@ -123,49 +123,67 @@ function ConvertQuote() {
         </table>
   
         {showModal && (
-          <div className="modal">
-            <div className="modal-content">
+          <div className="convert-form-overlay">
+            <div className="convert-form">
               <h3>Edit Sanctioned Quote for {selectedCustomer.name}</h3>
-              <p className="customer-email">
+              <div className="address-container">
                 {selectedCustomer.street}<br/>
                 {selectedCustomer.city}<br/>
                 {selectedCustomer.contact}<br/>  
                 {selectedQuote.customer_email}
-              </p>
-              <div>
-                <strong>Line Items:</strong>
-                {lineItems.map((item, index) => (
-                  <div key={index}>
-                    Description: {item.description}, Quantity: {item.quantity}, Price: ${item.price}
-                  </div>
-                ))}
               </div>
               <div>
-                <strong>Secret Notes:</strong>
+                <p style={{textAlign: "left"}}><u>Line Items:</u></p>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Description</th>
+                      <th>Quantity</th>
+                      <th>Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {lineItems.map((item, index) => (
+                      <tr key={index}>
+                        <td>{item.description}</td>
+                        <td>{item.quantity}</td>
+                        <td>${item.price}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div style={{textAlign: "left"}}>
+                <p><u>Secret Notes:</u></p>
                 {secretNotes.map((note, index) => (
                   <p key={index}>{note}</p>
                 ))}
               </div>
-              <div className="discount">
-              <label>Discount:</label>
-                <input
-                  type="number"
-                  placeholder="Discount"
-                  value={discount.value}
-                  onChange={(e) => setDiscount({ ...discount, value: parseFloat(e.target.value) })}
-                />
-                <select value={discount.type} onChange={(e) => setDiscount({ ...discount, type: e.target.value })}>
-                  <option value="percent">Percent</option>
-                  <option value="amount">Amount</option>
-                </select>
-              </div>
               <div>
+                <p style={{textAlign: "left"}}><u>Apply Final Discount</u></p>
+                <div className="discount">
+                  <input
+                    type="number"
+                    placeholder="Discount"
+                    value={discount.value}
+                    onChange={(e) => setDiscount({ ...discount, value: parseFloat(e.target.value) })}
+                  />
+                  <label>Discount Type: </label>
+                  <select value={discount.type} onChange={(e) => setDiscount({ ...discount, type: e.target.value })}>
+                    <option value="percent">Percent</option>
+                    <option value="amount">Amount</option>
+                  </select>
+                </div>
+              </div>
+              <div style={{marginTop: "20px"}}>
                 <strong>Subtotal:</strong> ${lineItems.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0), 0).toFixed(2)} <br/>
                 <strong>Total:</strong> ${total.toFixed(2)}
               </div>
-              <button onClick={handleProcessOrder}>Process Order</button>
-              <button onClick={saveSanctionedQuote}>Save Changes</button>
-              <button onClick={() => setShowModal(false)}>Cancel</button>
+              <div className="convert-action-buttons">
+                <button onClick={handleProcessOrder}>Process Order</button>
+                <button onClick={saveSanctionedQuote}>Save Changes</button>
+                <button onClick={() => setShowModal(false)}>Cancel</button>
+              </div>
             </div>
           </div>
         )}

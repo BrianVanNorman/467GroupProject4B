@@ -352,6 +352,12 @@ function EnterQuote() {
                 required
               />
               </div>
+              <div style={{marginBottom: "15px", display: "flex", height: "30px", gap: "38px"}}>
+                <u>Line Items</u>
+                <button type="button" onClick={addLineItem}>
+                  Add Line Item
+                </button>
+              </div>
               {lineItems.map((item, index) => (
                 <div key={index} className="line-item-form">
                   <input
@@ -382,6 +388,12 @@ function EnterQuote() {
                   </button>
                 </div>
               ))}
+              <div style={{marginBottom: "15px", display: "flex", height: "30px", gap: "20px"}}>
+                <u>Secret Notes</u>
+                <button type="button" onClick={addSecretNote}>
+                  Add Secret Note
+                </button>
+              </div>
               {secretNotes.map((note, index) => (
                 <div key={index} className="secret-note-form">
                   <textarea
@@ -394,8 +406,9 @@ function EnterQuote() {
                   </button>
                 </div>
               ))}
+              <p style={{textAlign: "left"}}><u>Apply Discount</u></p>
               <div>
-                <label>Discount:</label>
+                <label>Discount Type: </label>
                 <input
                   type="number"
                   placeholder="Discount"
@@ -406,22 +419,10 @@ function EnterQuote() {
                   <option value="percent">Percent</option>
                   <option value="amount">Amount</option>
                 </select>
-                
-                {/*<button type="button" onClick={applyDiscount}>Apply</button>*/}
-                
               </div>
-              <div>
-                <label>Total:$</label>
-                <span>{total.toFixed(2)}</span>
-              </div>
+              <p style={{textAlign: "left",marginTop: "35px"}}>Total: ${total.toFixed(2)}</p>
             </form>
             <div className="action-buttons">
-              <button type="button" onClick={addSecretNote}>
-                Add Secret Note
-              </button>
-              <button type="button" onClick={addLineItem}>
-                Add Line Item
-              </button>
               <button type="button" onClick={finalizeQuote}>
                 Finalize Quote
               </button>

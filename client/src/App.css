@@ -30,6 +30,7 @@
 
 main {
   padding: 20px;
+  background-image: linear-gradient(rgb(3,54,134), white);
 }
 
 @keyframes App-logo-spin {
