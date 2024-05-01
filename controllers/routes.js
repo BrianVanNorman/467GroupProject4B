@@ -6,7 +6,7 @@ const { searchCustomersByName, getCustomerById, createNewQuote, fetchDraftQuotes
 const { getFinalizedQuotes, updateFinalizedQuote, sanctionQuote } = require('./SanctionQuoteFunctions');
 const { fetchSanctionedQuotes, updateSanctionedQuote, processOrder } = require('./ConvertQuoteFunctions');
 const { searchAssociates } = require('./LoginFunctions');
-const { adminSearchQuotes, listAssociates } = require('./MaintainRecordsFunctions');
+const { adminSearchQuotes, listAssociates, addAssociate, updateAssociate, deleteAssociate } = require('./MaintainRecordsFunctions');
 
 // Define routes here
 
@@ -66,6 +66,9 @@ router.get('/associates/search', searchAssociates);
 
 router.get('/admin/quotes/search', adminSearchQuotes);
 router.get('/associates/list', listAssociates);
+router.post('/associates', addAssociate);
+router.put('/associates/:id', updateAssociate);
+router.delete('/associates/:id', deleteAssociate);
 
 
 module.exports = router;

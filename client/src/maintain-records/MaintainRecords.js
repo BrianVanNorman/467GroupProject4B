@@ -7,11 +7,15 @@ function MaintainRecords() {
   const [quotes, setQuotes] = useState([]);
   const [selectedAssociate, setSelectedAssociate] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showQuoteModal, setShowQuoteModal] = useState(false);
+  const [selectedQuote, setSelectedQuote] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [searchParams, setSearchParams] = useState({
     customer: '',
     startDate: '',
     endDate: '',
     status: '',
+    associate: '',
   });
 
   useEffect(() => {
@@ -45,10 +49,15 @@ function MaintainRecords() {
 
   const handleUpdateAssociate = async () => {
     try {
-      await axios.put(`/api/associates/${selectedAssociate._id}`, selectedAssociate);
+      const response = await axios.put(`/api/associates/${selectedAssociate._id}`, selectedAssociate);
       setShowModal(false);
+      if (response.status === 201) {
+        alert('Associate updated successfully!');
+      }
+      else {
+        alert('Associate update failed!');
+      }
       fetchAssociates();
-      alert('Associate updated successfully!');
     } catch (error) {
       console.error('Error updating associate:', error);
     }
@@ -56,9 +65,14 @@ function MaintainRecords() {
 
   const handleDeleteAssociate = async (associateId) => {
     try {
-      await axios.delete(`/api/associates/${associateId}`);
+      const response = await axios.delete(`/api/associates/${associateId}`);
+      if (response.status === 200) {
+        alert('Associate deleted successfully!');
+      }
+      else {
+        alert('Associate deletion failed!');
+      }
       fetchAssociates();
-      alert('Associate deleted successfully!');
     } catch (error) {
       console.error('Error deleting associate:', error);
     }
@@ -66,10 +80,15 @@ function MaintainRecords() {
 
   const handleAddAssociate = async () => {
     try {
-      await axios.post('/api/associates', selectedAssociate);
+      const response = await axios.post('/api/associates', selectedAssociate);
       setShowModal(false);
       fetchAssociates();
-      alert('Associate added successfully!');
+      if (response.status === 201) {
+        alert('Associate added successfully!');
+      }
+      else {
+        alert('Failed to add associate!');
+      }
     } catch (error) {
       console.error('Error adding associate:', error);
     }
@@ -78,6 +97,23 @@ function MaintainRecords() {
   const handleSearchQuotes = () => {
     fetchQuotes();
   };
+  
+  const handleViewQuote = async (Quote) => {
+    setSelectedQuote(Quote);
+    try {
+      const response = await axios.get(`/api/customers/${Quote.customer_id}`);
+      setSelectedCustomer(response.data);
+      console.log(selectedCustomer);
+    } catch (error) {
+      console.error('Error searching customer by id:', error);
+    }
+    setShowQuoteModal(true);
+  };
+
+  const handleCloseViewQuote = () => {
+    setSelectedQuote(null);
+    setShowQuoteModal(false);
+  }
 
   return (
     <div className="maintain-records">
@@ -98,7 +134,7 @@ function MaintainRecords() {
               <tr key={associate._id}>
                 <td>{associate.name}</td>
                 <td>{associate.address}</td>
-                <td>{associate.commission}</td>
+                <td>{associate.commission.toFixed(2)}</td>
                 <td>
                   <button onClick={() => handleEditAssociate(associate)}>Edit</button>
                   <button onClick={() => handleDeleteAssociate(associate._id)}>Delete</button>
@@ -123,6 +159,15 @@ function MaintainRecords() {
             value={searchParams.customer}
             onChange={(e) => setSearchParams({ ...searchParams, customer: e.target.value })}
           />
+          <select
+            value={searchParams.associate}
+            onChange={(e) => setSearchParams({ ...searchParams, associate: e.target.value })}
+          >
+            <option value="">All</option>
+            {associates.map((associate) => (
+              <option value={associate._id}>{associate.name}</option>
+            ))}
+          </select>
           <input
             type="date"
             placeholder="Start Date"
@@ -154,6 +199,7 @@ function MaintainRecords() {
               <th>Customer</th>
               <th>Amount</th>
               <th>Status</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -162,8 +208,11 @@ function MaintainRecords() {
                 <tr key={quote.numeric_id}>
                   <td>{quote.numeric_id}</td>
                   <td>{quote.customer_email}</td>
-                  <td>{quote.total}</td>
+                  <td>{quote.total.toFixed(2)}</td>
                   <td>{quote.status}</td>
+                  <td>
+                    <button onClick={() => handleViewQuote(quote)}>View</button>
+                  </td>
                 </tr>
               ))
             ) : (
@@ -186,6 +235,12 @@ function MaintainRecords() {
               onChange={(e) => setSelectedAssociate({ ...selectedAssociate, name: e.target.value })}
             />
             <input
+              type="password"
+              placeholder="New password"
+              value={selectedAssociate.password}
+              onChange={(e) => setSelectedAssociate({ ...selectedAssociate, password: e.target.value })}
+            />
+            <input
               type="text"
               placeholder="Address"
               value={selectedAssociate.address}
@@ -204,6 +259,67 @@ function MaintainRecords() {
           </div>
         </div>
       )}
+
+      {showQuoteModal && (
+        <div className="quote-form-overlay">
+          <div className="quote-form">
+            <form>
+              <h3>Order from: {selectedCustomer.name}</h3>
+              <div className="address-container">
+                <p>{selectedCustomer.street}<br/>
+                {selectedCustomer.city}<br/>
+                {selectedCustomer.contact}</p>
+              <input
+                type="email"
+                value={selectedQuote.customer_email}
+                disabled
+              />
+              </div>
+              {selectedQuote.line_items.map((item, index) => (
+                <div key={index} className="line-item-form">
+                  <input
+                    type="text"
+                    value={item.description}
+                    disabled
+                  />
+                  <input
+                    type="number"
+                    value={item.quantity}
+                    disabled
+                  />
+                  <input
+                    type="number"
+                    value={item.price}
+                    disabled
+                  />
+                </div>
+              ))}
+              {selectedQuote.secret_notes.map((note, index) => (
+                <div key={index} className="secret-note-form">
+                  <textarea
+                    value={note}
+                    disabled
+                  />
+                </div>
+              ))}
+              <div>
+                <label>Total:$</label>
+                <span>{selectedQuote.total.toFixed(2)}</span>
+              </div>
+              <div>
+                <label>Commission:$</label>
+                <span>{selectedQuote.commission.toFixed(2)}</span>
+              </div>
+            </form>
+            <div className="action-buttons">
+              <button type="button" onClick={handleCloseViewQuote}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
