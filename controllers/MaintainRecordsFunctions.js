@@ -14,6 +14,7 @@ const adminSearchQuotes = async (req, res) => {
         const start_date = req.query.search.startDate;
         const end_date = req.query.search.endDate;
         const searchStatus = req.query.search.status;
+        const associate_id = req.query.search.associate;
 
         // Find customer id for given customer name (only if it was actually supplied)
         if (customer) {
@@ -54,6 +55,9 @@ const adminSearchQuotes = async (req, res) => {
         }
         if (searchStatus) {
             query.status = searchStatus;
+        }
+        if (associate_id) {
+            query.associate_id = associate_id;
         }
 
         // Search quotes table for quotes
