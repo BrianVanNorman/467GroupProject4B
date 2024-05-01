@@ -6,18 +6,13 @@ function ConvertQuote() {
   const [sanctionedQuotes, setSanctionedQuotes] = useState([]);
   const [selectedQuote, setSelectedQuote] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [customerEmail, setCustomerEmail] = useState('');
-  const [lineItems, setLineItems] = useState([{ description: '', quantity: '', price: '' }]);
-  const [secretNotes, setSecretNotes] = useState(['']);
+  const [lineItems, setLineItems] = useState([]);
+  const [secretNotes, setSecretNotes] = useState([]);
   const [total, setTotal] = useState(0);
-  const [results, setResults] = useState(null);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [showQuoteForm, setShowQuoteForm] = useState(false);
   const [discount, setDiscount] = useState({ type: 'percent', value: 0 });
 
-  useEffect(() => {
-    fetchSanctionedQuotes();
-  }, []);
+
 
   const fetchSanctionedQuotes = async () => {
     try {
@@ -28,6 +23,10 @@ function ConvertQuote() {
       console.error('Error fetching sanctioned quotes:', error);
     }
   };
+
+  useEffect(() => {
+    fetchSanctionedQuotes();
+  }, []);
 
   const handleSelectQuote = async (quote) => {
     const response = await axios.get(`/api/customers/${quote.customer_id}`);
@@ -40,42 +39,50 @@ function ConvertQuote() {
     setSecretNotes(quote.secret_notes);
     setDiscount(quote.discount || { type: 'percent', value: 0 });
     setTotal(quote.total);
-    recalculateTotal(quote.total, quote.discount);
     setShowModal(true);
   };
-    
-  const recalculateTotal = (baseTotal, discount) => {
-    if (!discount) return;
-    let discountAmount = discount.type === 'percent' ? baseTotal * (discount.value / 100) : discount.value;
-    setTotal(baseTotal - discountAmount);
-  }
 
-  const handleDiscountChange = (e) => {
-    const { name, value } = e.target;
-    const newDiscount = { ...discount, [name]: name === 'value' ? parseFloat(value) : value };
-    setDiscount(newDiscount);
-    // Recalculate the total whenever discount changes
-    recalculateTotal(total, newDiscount);
+
+  const calculateTotal = () => {
+    if (!selectedQuote) {
+      setTotal(0);
+      return;
+    }
+  
+    const subtotal = lineItems.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0), 0);
+  
+    let newTotal = selectedQuote.total;
+  
+    if (discount && discount.type) {
+      const newDiscountAmount = discount.type === 'percent' ? newTotal * (discount.value / 100) : discount.value;
+      newTotal = newTotal - newDiscountAmount;
+    }
+  
+    setTotal(newTotal);
   };
-    
-    
-    const saveSanctionedQuote = async () => {
-      try {
-          const quoteData = {
-              total: total,
-          };
-          const response = await axios.put(`/api/quotes/sanctioned/${selectedQuote._id}`, quoteData);
-          if (response.status === 200) {
-              alert('Quote updated successfully!');
-              fetchSanctionedQuotes();  // Refresh the list of quotes
-          } else {
-              alert('Failed to update quote.');
-          }
-          setShowModal(false);
-      } catch (error) {
-          console.error('Error updating quote:', error);
-          alert('An error occurred while updating the quote.');
+
+  useEffect(() => {
+    calculateTotal();
+  }, [discount, lineItems, calculateTotal]);
+
+  const saveSanctionedQuote = async () => {
+    try {
+      const quoteData = {
+        total: total,
+        discount: discount,
+      };
+      const response = await axios.put(`/api/quotes/sanctioned/${selectedQuote._id}`, quoteData);
+      if (response.status === 200) {
+        alert('Quote updated successfully!');
+        fetchSanctionedQuotes();
+      } else {
+        alert('Failed to update quote.');
       }
+      setShowModal(false);
+    } catch (error) {
+      console.error('Error updating quote:', error);
+      alert('An error occurred while updating the quote.');
+    }
   };
 
   const handleProcessOrder = async () => {
@@ -140,25 +147,21 @@ function ConvertQuote() {
                 ))}
               </div>
               <div className="discount">
-                <label>Discount Type:</label>
-                <select
-                  name="type"
-                  value={discount.type}
-                  onChange={handleDiscountChange}
-                >
+              <label>Discount:</label>
+                <input
+                  type="number"
+                  placeholder="Discount"
+                  value={discount.value}
+                  onChange={(e) => setDiscount({ ...discount, value: parseFloat(e.target.value) })}
+                />
+                <select value={discount.type} onChange={(e) => setDiscount({ ...discount, type: e.target.value })}>
                   <option value="percent">Percent</option>
                   <option value="amount">Amount</option>
                 </select>
-                <label>Discount Value:</label>
-                <input
-                  type="number"
-                  name="value"
-                  value={discount.value}
-                  onChange={handleDiscountChange}
-                />
               </div>
               <div>
-                <strong>Total: ${total.toFixed(2)}</strong>
+                <strong>Subtotal:</strong> ${lineItems.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0), 0).toFixed(2)} <br/>
+                <strong>Total:</strong> ${total.toFixed(2)}
               </div>
               <button onClick={handleProcessOrder}>Process Order</button>
               <button onClick={saveSanctionedQuote}>Save Changes</button>
