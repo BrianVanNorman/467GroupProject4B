@@ -74,3 +74,56 @@
   padding: 5px;
   margin-bottom: 10px;
 }
+
+.quote-form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-y: auto; /* Add this to add a vertical scroll wheel */
+}
+
+.quote-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 1000px; /* Fixed width for the modal */
+  height: 800px;
+  max-height: 80%; /* Maximum height for the modal */
+  overflow-y: auto; /* Enable vertical scrolling within the modal */
+  position: relative; /* Position relative for absolute positioning of buttons */
+}
+
+.address-container {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.line-item-form,
+.secret-note-form {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.line-item-form input,
+.secret-note-form textarea {
+  flex-grow: 1;
+  margin-right: 10px;
+}
+
+.action-buttons button {
+  margin: 0 5px;
+}

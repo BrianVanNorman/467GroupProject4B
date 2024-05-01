@@ -50,7 +50,7 @@ async function insertNewQuote() {
         customer_id: 123,
         customer_email: 'jkurbis@yahoo.com',
         total: 1500,
-        commission: 150,
+        commission: 0,
         status: 'draft',
     });
     

@@ -66,6 +66,7 @@ router.get('/associates/search', searchAssociates);
 
 router.get('/admin/quotes/search', adminSearchQuotes);
 router.get('/associates/list', listAssociates);
+router.get('/customers/info', getCustomerById);
 
 
 module.exports = router;
