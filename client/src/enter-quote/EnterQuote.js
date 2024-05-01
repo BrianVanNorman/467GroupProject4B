@@ -364,6 +364,7 @@ function EnterQuote() {
                   <input
                     type="number"
                     placeholder="Quantity"
+                    min = "0"
                     value={item.quantity}
                     onChange={(e) => handleLineItemChange(index, 'quantity', e.target.value)}
                     required
@@ -371,6 +372,7 @@ function EnterQuote() {
                   <input
                     type="number"
                     placeholder="Price"
+                    min = "0"
                     value={item.price}
                     onChange={(e) => handleLineItemChange(index, 'price', e.target.value)}
                     required

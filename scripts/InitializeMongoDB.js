@@ -49,7 +49,7 @@ async function insertNewQuote() {
         associate_id: associate._id,
         customer_id: 123,
         customer_email: 'jkurbis@yahoo.com',
-        amount: 1500,
+        total: 1500,
         commission: 150,
         status: 'draft',
     });
