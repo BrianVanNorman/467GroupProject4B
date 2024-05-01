@@ -201,7 +201,7 @@ function SanctionQuote() {
 
   return (
     <div className="sanction-quote">
-      <h2>Sanction Quote</h2>
+      <h2>Finalized Quotes</h2>
       <table>
         <thead>
           <tr>
