@@ -193,7 +193,7 @@ function MaintainRecords() {
                 <tr key={quote.numeric_id}>
                   <td>{quote.numeric_id}</td>
                   <td>{quote.customer_email}</td>
-                  <td>{quote.total}</td>
+                  <td>{quote.total.toFixed(2)}</td>
                   <td>{quote.status}</td>
                   <td>
                     <button onClick={() => handleViewQuote(quote)}>View</button>
