@@ -69,6 +69,8 @@
 .line-item-form button,
 .secret-note-form button {
   flex-shrink: 0;
+  padding: 10px 20px;
+  margin: 10px 10px; /* Change this to better place the buttons */
 }
 
 .action-buttons {
@@ -80,6 +82,8 @@
 
 .action-buttons button {
   margin: 0 5px;
+  padding: 10px 20px;
+  margin: 10px 10px; /* Change this to better place the buttons */
 }
 
 .sanction-form h3 {
@@ -98,14 +102,11 @@
 }
 
 .sanction-form button {
-  padding: 10px 20px;
-  margin: 10px 10px; /* Change this to better place the buttons */
   background-color: #007bff;
   color: #fff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  float: right; /* Add this to align the remove buttons to the right */
 }
 
 .sanction-form button:hover {

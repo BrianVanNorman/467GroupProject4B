@@ -228,24 +228,28 @@ function MaintainRecords() {
         <div className="modal">
           <div className="modal-content">
             <h3>{selectedAssociate._id ? 'Edit Associate' : 'Add Associate'}</h3>
+            <label style={{textAlign: "left"}}><u>Name</u></label>
             <input
               type="text"
               placeholder="Name"
               value={selectedAssociate.name}
               onChange={(e) => setSelectedAssociate({ ...selectedAssociate, name: e.target.value })}
             />
+            <label style={{textAlign: "left"}}><u>Password</u></label>
             <input
               type="password"
               placeholder="New password"
               value={selectedAssociate.password}
               onChange={(e) => setSelectedAssociate({ ...selectedAssociate, password: e.target.value })}
             />
+            <label style={{textAlign: "left"}}><u>Address</u></label>
             <input
               type="text"
               placeholder="Address"
               value={selectedAssociate.address}
               onChange={(e) => setSelectedAssociate({ ...selectedAssociate, address: e.target.value })}
             />
+            <label style={{textAlign: "left"}}><u>Comission</u></label>
             <input
               type="number"
               placeholder="Commission"
@@ -261,57 +265,49 @@ function MaintainRecords() {
       )}
 
       {showQuoteModal && (
-        <div className="quote-form-overlay">
-          <div className="quote-form">
-            <form>
+        <div className="record-form-overlay">
+          <div className="record-form">
+            <div>
               <h3>Order from: {selectedCustomer.name}</h3>
               <div className="address-container">
                 <p>{selectedCustomer.street}<br/>
                 {selectedCustomer.city}<br/>
-                {selectedCustomer.contact}</p>
-              <input
-                type="email"
-                value={selectedQuote.customer_email}
-                disabled
-              />
-              </div>
-              {selectedQuote.line_items.map((item, index) => (
-                <div key={index} className="line-item-form">
-                  <input
-                    type="text"
-                    value={item.description}
-                    disabled
-                  />
-                  <input
-                    type="number"
-                    value={item.quantity}
-                    disabled
-                  />
-                  <input
-                    type="number"
-                    value={item.price}
-                    disabled
-                  />
-                </div>
-              ))}
-              {selectedQuote.secret_notes.map((note, index) => (
-                <div key={index} className="secret-note-form">
-                  <textarea
-                    value={note}
-                    disabled
-                  />
-                </div>
-              ))}
-              <div>
-                <label>Total:$</label>
-                <span>{selectedQuote.total.toFixed(2)}</span>
+                {selectedCustomer.contact}<br/>
+                {selectedQuote.customer_email}</p>
               </div>
               <div>
-                <label>Commission:$</label>
-                <span>{selectedQuote.commission.toFixed(2)}</span>
+                <p style={{textAlign: "left"}}><u>Line Items:</u></p>
+                <table>
+                  <thead>
+                    <tr>
+                    <th>Description</th>
+                      <th>Quantity</th>
+                      <th>Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedQuote.line_items.map((item, index) => (
+                      <tr key={index}>
+                        <td>{item.description}</td>
+                        <td>{item.quantity}</td>
+                        <td>${item.price}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            </form>
-            <div className="action-buttons">
+              <div style={{textAlign: "left"}}>
+                <p><u>Secret Notes:</u></p>
+                {selectedQuote.secret_notes.map((note, index) => (
+                  <p key={index}>{note}</p>
+                ))}
+              </div>
+              <div>
+                <label>Total: ${selectedQuote.total.toFixed(2)}</label><br/>
+                <label>Commission: ${selectedQuote.commission.toFixed(2)}</label>
+              </div>
+            </div>
+            <div className="record-action-buttons">
               <button type="button" onClick={handleCloseViewQuote}>
                 Close
               </button>
