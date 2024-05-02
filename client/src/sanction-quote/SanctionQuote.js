@@ -238,9 +238,9 @@ function SanctionQuote() {
                   {selectedQuote.customer_email}
                 </p>
               </div>
-              <div style={{marginBottom: "15px", display: "flex", height: "30px", gap: "38px"}}>
+              <div style={{marginBottom: "15px", display: "flex", height: "30px", gap: "38px", alignItems: "center"}}>
                 <u>Line Items</u>
-                <button type="button" onClick={addLineItem}>Add Line Item</button>
+                <button type="button" onClick={addLineItem} style={{padding: "5px 10px"}}>Add Line Item</button>
               </div>
               {lineItems.map((item, index) => (
                 <div key={index} className="line-item-form">
@@ -268,9 +268,9 @@ function SanctionQuote() {
                   <button type="button" onClick={() => removeLineItem(index)}>Remove</button>
                 </div>
               ))}
-              <div style={{marginBottom: "15px", display: "flex", height: "30px", gap: "20px"}}>
+              <div style={{margin: "15px 0px 15px 0px", display: "flex", height: "30px", gap: "20px", alignItems: "center"}}>
                 <u>Secret Notes</u>
-                <button type="button" onClick={addSecretNote}>Add Secret Note</button>
+                <button type="button" onClick={addSecretNote} style={{padding: "5px 10px"}}>Add Secret Note</button>
               </div>
               {secretNotes.map((note, index) => (
                 <div key={index} className="secret-note-form">

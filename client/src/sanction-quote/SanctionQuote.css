@@ -57,20 +57,17 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
 }
 
 .line-item-form input,
 .secret-note-form textarea {
   flex-grow: 1;
-  margin-right: 10px;
 }
 
 .line-item-form button,
 .secret-note-form button {
   flex-shrink: 0;
   padding: 10px 20px;
-  margin: 10px 10px; /* Change this to better place the buttons */
 }
 
 .action-buttons {
@@ -94,7 +91,7 @@
 .sanction-form textarea {
   width: 100%;
   padding: 10px;
-  margin-bottom: 10px;
+  margin: 5px 0px 5px 0px;
   border: 1px solid #ccc;
   border-radius: 4px;
   max-width: 300px; /* Add this to make the input boxes smaller */

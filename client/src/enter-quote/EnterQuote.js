@@ -352,9 +352,9 @@ function EnterQuote() {
                 required
               />
               </div>
-              <div style={{marginBottom: "15px", display: "flex", height: "30px", gap: "38px"}}>
+              <div style={{marginBottom: "15px", display: "flex", height: "30px", gap: "38px", alignItems: "center"}}>
                 <u>Line Items</u>
-                <button type="button" onClick={addLineItem}>
+                <button type="button" onClick={addLineItem} style={{padding: "5px 10px"}}>
                   Add Line Item
                 </button>
               </div>
@@ -388,9 +388,9 @@ function EnterQuote() {
                   </button>
                 </div>
               ))}
-              <div style={{marginBottom: "15px", display: "flex", height: "30px", gap: "20px"}}>
+              <div style={{margin: "15px 0px 15px 0px", display: "flex", height: "30px", gap: "20px", alignItems: "center"}}>
                 <u>Secret Notes</u>
-                <button type="button" onClick={addSecretNote}>
+                <button type="button" onClick={addSecretNote} style={{padding: "5px 10px"}}>
                   Add Secret Note
                 </button>
               </div>
@@ -429,11 +429,11 @@ function EnterQuote() {
               <button type="button" onClick={saveDraftQuote}>
                 Save Draft
               </button>
-              <button type="button" onClick={handleCloseQuoteForm}>
-                Cancel
-              </button>
               <button type="button" onClick={handleDeleteDraft}>
                 Delete Draft
+              </button>
+              <button type="button" onClick={handleCloseQuoteForm}>
+                Cancel
               </button>
             </div>
           </div>
