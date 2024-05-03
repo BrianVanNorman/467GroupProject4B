@@ -54,6 +54,8 @@ router.put('/quotes/sanctioned/:id', updateSanctionedQuote);
 // To process a sanctioned quote into an order
 router.post('/quotes/:id/process-order', processOrder);
 
+router.post('/quotes/send-email-2', sendQuoteEmailHandler);
+
 
 //               //
 // Login routes: //

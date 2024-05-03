@@ -87,10 +87,31 @@ function ConvertQuote() {
 
   const handleProcessOrder = async () => {
     try {
+      const date = new Date();
+      const formatDate = date.toISOString().split('T')[0].replace(/-/g, ' ');
+      const updatedQuote = {
+        line_items: lineItems.map(item => ({
+          description: item.description,
+          price: parseFloat(item.price),
+          quantity: parseFloat(item.quantity)
+        })),
+      
+        total: total,
+        date: formatDate
+      };
+
       await axios.post(`/api/quotes/${selectedQuote._id}/process-order`);
       setShowModal(false);
       fetchSanctionedQuotes();
       alert('Order processed successfully!');
+      // Trigger email sending
+      const emailContent = {
+        email: selectedQuote.customer_email,
+        content: `Dear ${selectedCustomer.name},<br>Here are the details of your Process Order below:<br><br>${selectedCustomer.street}<br>
+        ${selectedCustomer.city}<br>${selectedCustomer.contact}<br>Items:<br>${updatedQuote.line_items.map(item => `${item.description}: $${item.price} x ${item.quantity}`).join('<br>')}<br>Total: 
+        $${updatedQuote.total}<br>Processed Order Date: ${updatedQuote.date}<br><br>Thank you for choosing us!`
+      };
+      await axios.post('/api/quotes/send-email-2', emailContent);
     } catch (error) {
       console.error('Error processing order:', error);
     }
