@@ -3,7 +3,7 @@ const router = express.Router();
 
 
 const { searchCustomersByName, getCustomerById, createNewQuote, fetchDraftQuotes, updateDraftQuote, deleteDraftQuote } = require('./EnterQuoteFunctions');
-const { getFinalizedQuotes, updateFinalizedQuote, sanctionQuote } = require('./SanctionQuoteFunctions');
+const { getFinalizedQuotes, updateFinalizedQuote, sanctionQuote, sendQuoteEmailHandler } = require('./SanctionQuoteFunctions');
 const { fetchSanctionedQuotes, updateSanctionedQuote, processOrder } = require('./ConvertQuoteFunctions');
 const { searchAssociates } = require('./LoginFunctions');
 const { adminSearchQuotes, listAssociates, addAssociate, updateAssociate, deleteAssociate } = require('./MaintainRecordsFunctions');
@@ -35,8 +35,10 @@ router.get('/quotes/finalized', getFinalizedQuotes);
 // Update a finalized quote
 router.put('/quotes/:id', updateFinalizedQuote);
 
-// Convert quote to purchase order
+// Convert quote to sanctioned quote
 router.put('/quotes/:id/sanction-quote', sanctionQuote);
+
+router.post('/quotes/send-email', sendQuoteEmailHandler);
 
 
 //                      //

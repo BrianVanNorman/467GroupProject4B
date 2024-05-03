@@ -126,27 +126,30 @@ function SanctionQuote() {
         total: total,
         date: formatDate,
         status: 'sanctioned',
-        // Add other fields you expect to update
       };
       
+      let response;
       if (selectedQuote) {
-        const response = await axios.put(`/api/quotes/${selectedQuote._id}`, updatedQuote);
-        if (response.status === 200) {
-          alert('Quote sanctioned successfully!');
-          handleCloseModal();
-          fetchFinalizedQuotes();
-        } else {
-          alert('Failed to sanction quote.');
-        }
-    } else {
-        const response = await axios.post('/api/quotes', updatedQuote);
-        if (response.status === 201) {
-          alert('Quote sanctioned successfully!');
-          handleCloseModal();
-          fetchFinalizedQuotes();
-        } else {
-          alert('Failed to sanction quote.');
-        }
+        response = await axios.put(`/api/quotes/${selectedQuote._id}`, updatedQuote);
+      } else {
+        response = await axios.post('/api/quotes', updatedQuote);
+      }
+  
+      if (response.status === 200 || response.status === 201) {
+        alert('Quote sanctioned successfully!');
+        handleCloseModal();
+        fetchFinalizedQuotes();
+  
+        // Trigger email sending
+        const emailContent = {
+          email: selectedQuote.customer_email,
+          content: `Dear ${selectedCustomer.name},<br>Here are the details of your sanctioned quote below:<br><br>${selectedCustomer.street}<br>
+          ${selectedCustomer.city}<br>${selectedCustomer.contact}<br>Items:${updatedQuote.line_items.map(item => `${item.description}: $${item.price} x ${item.quantity}`).join('<br>')}<br>Total: 
+          $${updatedQuote.total}<br>Sanctioned Date: ${updatedQuote.date}<br><br>Thank you for choosing us!`
+        };
+        await axios.post('/api/quotes/send-email', emailContent);
+      } else {
+        alert('Failed to sanction quote.');
       }
     } catch (error) {
       console.error('Error sanctioning quote:', error);

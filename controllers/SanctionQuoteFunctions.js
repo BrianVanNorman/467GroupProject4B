@@ -1,7 +1,9 @@
 const connectDB = require('../db');
 const mongoose = require('mongoose');
-const nodemailer = require('nodemailer');
 const Quote = require('../models/Quote');
+const sgMail = require('@sendgrid/mail');
+
+sgMail.setApiKey('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');
 
 const getFinalizedQuotes = async (req, res) => {
   try {
@@ -43,34 +45,6 @@ const calculateTotal = (lineItems, discount) => {
   return subtotal;
 };
 
-// Email setup
-const transporter = nodemailer.createTransport({
-  service: 'SendGrid', // Using SendGrid's SMTP service
-  auth: {
-      user: 'apikey',
-      pass: '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'
-  }
-});
-
-// Function to send email
-const sendQuoteEmail = async (email, content) => {
-  const mailOptions = {
-      from: 'quotesystemusa@gmail.com',
-      to: email,
-      subject: 'Your Quote Details',
-      text: content,
-      html: `<p>${content}</p>`
-  };
-
-  try {
-      const result = await transporter.sendMail(mailOptions);
-      console.log('Email sent successfully! Result:', result);
-  } catch (error) {
-      console.error('Failed to send email:', error);
-      throw error;
-  }
-};
-
 const sanctionQuote = async (req, res) => {
   try {
     // Attempt to establish a connection if not already connected
@@ -95,16 +69,6 @@ const sanctionQuote = async (req, res) => {
     const newQuote = new QuoteModel(quoteData);
     const savedQuote = await newQuote.save();
 
-    // Email content
-    const emailContent = 'Hello!';
-    console.log('Attempting to send email to:', savedQuote.customer_email);
-
-    //`Dear Customer,\n\nHere are the details of your sanctioned quote:\nTotal: $${quoteData.total}\nItems: ${quoteData.line_items.map(item => `${item.description}: $${item.price} x ${item.quantity}`).join('\n')}\n\nThank you for choosing us!`;
-
-
-    // Send email to the customer's email address stored in the quote
-    await sendQuoteEmail(savedQuote.customer_email, emailContent);
-
     res.status(201).json(savedQuote);
   } catch (error) {
     console.error('Failed to sanction quote:', error);
@@ -112,8 +76,39 @@ const sanctionQuote = async (req, res) => {
   }
 };
 
+// Function to send email using SendGrid
+const sendQuoteEmail = async (email, content) => {
+  const msg = {
+      to: email,
+      from: 'quotesystemusa@gmail.com',
+      subject: 'Your Quote Details',
+      text: content,
+      html: `<strong>${content}</strong>`,
+  };
+
+  try {
+      await sgMail.send(msg);
+      console.log('Email sent successfully!');
+  } catch (error) {
+      console.error('Failed to send email:', error);
+  }
+};
+
+// Email sending function
+const sendQuoteEmailHandler = async (req, res) => {
+  try {
+    const { email, content } = req.body; // Assume these are passed correctly
+    await sendQuoteEmail(email, content);
+    res.status(200).json({ message: 'Email sent successfully' });
+  } catch (error) {
+    console.error('Failed to send email:', error);
+    res.status(500).send('Email sending failed');
+  }
+};
+
 module.exports = {
     getFinalizedQuotes,
     sanctionQuote,
     updateFinalizedQuote,
+    sendQuoteEmailHandler
   };
