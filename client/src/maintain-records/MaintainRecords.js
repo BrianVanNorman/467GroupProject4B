@@ -115,6 +115,16 @@ function MaintainRecords() {
     setShowQuoteModal(false);
   }
 
+  const printAssociateName = (ID) => {
+    const result = associates.find((associates) => associates._id === ID);
+    return result.name;
+  }
+
+  const formatDate = (date) => {
+    const result = date.substr(0, 10);
+    return result;
+  }
+
   return (
     <div className="maintain-records">
       <h2>Maintain Records</h2>
@@ -197,6 +207,7 @@ function MaintainRecords() {
             <tr>
               <th>Quote ID</th>
               <th>Customer</th>
+              <th>Associate</th>
               <th>Amount</th>
               <th>Status</th>
               <th>Action</th>
@@ -206,8 +217,9 @@ function MaintainRecords() {
             {quotes.length > 0 ? (
               quotes.map((quote) => (
                 <tr key={quote.numeric_id}>
-                  <td>{quote.numeric_id}</td>
+                  <td>{quote.numeric_id} ({formatDate(String(quote.date))})</td>
                   <td>{quote.customer_email}</td>
+                  <td>{printAssociateName(quote.associate_id)}</td>
                   <td>{quote.total.toFixed(2)}</td>
                   <td>{quote.status}</td>
                   <td>
